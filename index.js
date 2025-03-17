@@ -3,10 +3,15 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const app = express();
+const rateLimit = require('express-rate-limit')
 
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET){
+    console.error("Missing token in environment variable")
+    process.exit(1)
+}
 
 async function initializeDatabase (){
     const connection = await mysql.createConnection({
@@ -27,8 +32,57 @@ async function initializeDatabase (){
 
 initializeDatabase().catch(console.error);
 
+function authenticateToken(req, res, next){
+    console.log('🔍 Checking Authorization Header:', req.headers.authorization);
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")){
+        console.log('❌ No token provided');
+        return res.status(403).send('No token provided.')
+    }
+
+    token = authHeader.split(" ")[1]
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if(err){
+            console.log('❌ Invalid token:', err);
+            return res,status(403).send('Invalid or expired token');
+        }
+        req.user = user;
+        next();
+    })
+}
+
+app.delete("/unregister", authenticateToken, async(req, res) => {
+    console.log('📢 Unregister request received for user:', req.user);
+    try{
+            const connection = await mysql.createConnection({
+                host: process.env.MYSQL_HOST,
+                user: process.env.MYSQL_USER,
+                password: process.env.MYSQL_PASSWORD,
+                database: process.env.MYSQL_DATABASE
+            });
+            console.log('✅ Connected to database');
+            const [result] = await connection.execute(
+                'DELETE FROM users WHERE id = ?',
+                [req.user.id]
+            );
+            await connection.end();
+
+            if (result.affectedRows === 0){
+                console.log('❌ No user deleted, user not found.');
+                return res.status(404).send('User not found')
+            }
+            console.log('✅ User deleted successfully');
+            res.status(200).send('User deleted successfully.')
+    } catch(error){
+        console.error('❌ Error deleting user:', error);
+        res.status(500).send('Error deleteing user')
+    }
+})
+
 app.post('/register', async(req, res) => {
-    const { username , password } = req.body;
+    let { username , password } = req.body;
     if (!username || !password){
         return res.status(400).send('Username and Password are required');
     }
@@ -52,12 +106,17 @@ app.post('/register', async(req, res) => {
             res.status(409).send('Username already exists');
         } else{
             res.status(500).send('Error registering user');
-        }
+        } 
     }
 });
 
-//Logiin endpoint
-app.post('/login', async (req, res) => {
+const loginLimiter = rateLimit({
+    windows: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit to 5 attempts per window
+    message: 'Too many attempts. Try again later.'
+})
+
+app.post('/login', loginLimiter , async (req, res) => {
     const {username, password} = req.body;
     try {
         const connection = await mysql.createConnection({
@@ -85,6 +144,7 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Error logging in');
     }
 });
+
 
 app.listen(3000, '0.0.0.0', () => {
     console.log('Server running on port 3000.')

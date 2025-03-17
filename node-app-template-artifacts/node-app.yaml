@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mf-node-app
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mf-node-app
+  template:
+    metadata:
+      labels:
+        app: mf-node-app
+    spec:
+      containers:
+      - name: mf-node-app
+        image: malcolmcfraser/mf-node-app-template:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MYSQL_HOST
+          value: mysql-service
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-root-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-database
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: JWT_SECRET
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mf-node-app-service
+spec:
+  type: NodePort
+  selector: 
+    app: mf-node-app
+  ports:
+  - port: 3000
+    targetPort: 3000
+    nodePort: 30007
