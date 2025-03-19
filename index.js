@@ -54,13 +54,13 @@ function authenticateToken(req, res, next){
 }
 
 const rateLimiter = rateLimit({
-    windows: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit to 5 attempts per window
+    windows: 5 * 60 * 1000, // 15 minutes
+    max: 10, // Limit to 5 attempts per window
     message: 'Too many attempts. Try again later.',
     headers: true // Include rate limit info in the response headers
 })
 
-app.delete("/unregister", authenticateToken, async(req, res) => {
+app.delete("/unregister", rateLimiter, authenticateToken, async(req, res) => {
     console.log('📢 Unregister request received for user:', req.user);
     try{
             const connection = await mysql.createConnection({
