@@ -17,6 +17,7 @@ spec:
       containers:
       - name: mf-node-app
         image: malcolmcfraser/mf-node-app-template:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         env:

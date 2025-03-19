@@ -1,11 +1,18 @@
 import pytest
 import requests
 import time
+import subprocess
 
 # Change ip adress here based on Minikube setup.
-BASE_URL = "http://192.168.58.2:30007" # Default for local testing
 USERNAME = "testuser7"
 TOKEN = ""
+
+def get_service_url():
+    ip = subprocess.check_output(["minikube", "ip"]).decode().strip()
+    port = subprocess.check_output(["kubectl", "get", "svc", "mf-node-app-service", "-o", "jsonpath={.spec.ports[0].nodePort}"]).decode().strip()
+    return f"http://{ip}:{port}"
+
+BASE_URL = get_service_url() #"http://192.168.58.2:30007" # Default for local testing
 # Wait for the service to be ready.
 def wait_for_service(url, timeout=30):
     start_time = time.time()
