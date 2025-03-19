@@ -1,9 +1,9 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const app = express();
-const rateLimit = require('express-rate-limit')
 
 app.use(express.json());
 
@@ -53,6 +53,13 @@ function authenticateToken(req, res, next){
     })
 }
 
+const rateLimiter = rateLimit({
+    windows: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit to 5 attempts per window
+    message: 'Too many attempts. Try again later.',
+    headers: true // Include rate limit info in the response headers
+})
+
 app.delete("/unregister", authenticateToken, async(req, res) => {
     console.log('📢 Unregister request received for user:', req.user);
     try{
@@ -81,7 +88,7 @@ app.delete("/unregister", authenticateToken, async(req, res) => {
     }
 })
 
-app.post('/register', async(req, res) => {
+app.post('/register', rateLimiter, async(req, res) => {
     let { username , password } = req.body;
     if (!username || !password){
         return res.status(400).send('Username and Password are required');
@@ -110,13 +117,7 @@ app.post('/register', async(req, res) => {
     }
 });
 
-const loginLimiter = rateLimit({
-    windows: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit to 5 attempts per window
-    message: 'Too many attempts. Try again later.'
-})
-
-app.post('/login', loginLimiter , async (req, res) => {
+app.post('/login', rateLimiter , async (req, res) => {
     const {username, password} = req.body;
     try {
         const connection = await mysql.createConnection({
