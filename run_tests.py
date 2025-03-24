@@ -10,6 +10,8 @@ def deploy_app():
     subprocess.run(["docker", "push","malcolmcfraser/mf-node-app-template:latest"], check=True)
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/mysql-statefulset.yaml"], check=True) # path to statefulset
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app.yaml"], check=True)# path to node-deployment-template
+    subprocess.run(["kubectl", "wait", "--for=condition=available", "--timeout=120s", "deployment/mf-node-app"], check=True)
+    #subprocess.run(["minikube", "service", "mf-node-app-service", "--url"])
     
     # Wait for the pods to be ready
     for _ in range(30):

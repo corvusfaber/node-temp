@@ -1,0 +1,32 @@
+name: Python Test with Minikube
+
+on: [push, pull_request]
+    
+#jobs
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          driver: docker
+
+      - name: Verify minikube is running
+        run: minikube status
+
+      - name: Install Python dependancies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+      
+      - name: Run Python tests
+        run: |
+          source venv/bin/activate
+          python run_tests.py
+      
