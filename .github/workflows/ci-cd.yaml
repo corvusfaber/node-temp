@@ -36,13 +36,6 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
-      
-      - name: Check Kubernetes resources
-        run: |
-          kubectl get pods -A
-          kubectl get deployments -A
-          kubectl describe deployment mf-node-app
-          kubectl describe pods -A
 
       - name: Run Python tests
         run: |
