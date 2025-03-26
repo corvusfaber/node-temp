@@ -19,6 +19,13 @@ jobs:
       - name: Verify minikube is running
         run: minikube status
 
+      - name: Apply Kubernetes Secret
+        run: |
+          echo "Creating Kubernetes secret..."
+          kubectl create secret generic jwt-secret \
+            --from-literal=JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y libdbus-1-dev
 
