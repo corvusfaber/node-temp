@@ -11,7 +11,18 @@ def deploy_app():
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/mysql-statefulset.yaml"], check=True) # path to statefulset
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app.yaml"], check=True)# path to node-deployment-template
     time.sleep(120)
-    subprocess.run(["kubectl", "get", "pods"], check=True)# debugging
+    result = subprocess.run(
+    ["kubectl", "get", "pods", "-l", "app=mf-node-app", "--no-headers", "-o", "custom-columns=:metadata.name"],
+    check=True,
+    capture_output=True,
+    text=True)
+    pod_name = result.stdout.strip()
+    # Run `kubectl describe` on the retrieved pod
+    if pod_name:
+        subprocess.run(["kubectl", "describe", "pod", pod_name], check=True)
+    else:
+        print("No pod found for mf-node-app.")
+        
     subprocess.run(["kubectl", "wait", "--for=condition=available", "--timeout=60s", "deployment/mf-node-app"], check=True)
     #subprocess.run(["minikube", "service", "mf-node-app-service", "--url"])
     
