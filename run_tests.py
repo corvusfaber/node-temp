@@ -58,6 +58,6 @@ if __name__ == "__main__":
     print ("Running tests...")
     with open("test_api.py", "r") as f:
         content = f.read()
-    with open("test_api.py", "w") as f:
-        f.write(content.replace('BASE_URL = "http://localhost:30007"', f'BASE_URL = "{BASE_URL}"'))
+    # with open("test_api.py", "w") as f:
+    #     f.write(content.replace('BASE_URL = "http://localhost:30007"', f'BASE_URL = "{BASE_URL}"'))
     pytest.main(["test_api.py", "-v"])
