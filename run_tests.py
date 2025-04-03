@@ -53,6 +53,7 @@ def get_pod_logs():
     podname = subprocess.check_output(["kubectl", "get","pods", "-l", "app=mf-node-app", "-o", "jsonpath={.items[0].metadata.name}"]).decode().strip()
     time.sleep(5)
     subprocess.run(["kubectl", "logs", podname], check=True)# path to node-deployment-template
+    subprocess.run(["kubectl", "logs", "mysql-0"], check=True)# path to node-deployment-template
 
 if __name__ == "__main__":
     print ("Deploying application... ")
