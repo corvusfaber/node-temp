@@ -14,6 +14,7 @@ if (!JWT_SECRET){
 }
 
 async function initializeDatabase (){
+   try{
     const connection = await mysql.createConnection({
         host: process.env.MYSQL_HOST,
         user: process.env.MYSQL_USER,
@@ -29,6 +30,9 @@ async function initializeDatabase (){
     );
     await connection.end();
     console.log('Database initialized')
+}catch (error){
+    console.error("Database connection error:", error);
+}
 }
 
 initializeDatabase().catch(console.error);
