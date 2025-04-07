@@ -64,7 +64,12 @@ jobs:
       
       - name: Check logs
         run: |
+          POD_NAME=$(kubectl get pods -l app=mf-node-app -o jsonpath="{.items[0].metadata.name}")
+          echo "Showing logs for pod: $POD_NAME"
+          kubectl logs $POD_NAME
+
+      - name: Check logs
+        run: |
           kubectl describe pod mysql-0
           kubectl logs mysql-0
-
   
