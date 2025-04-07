@@ -62,3 +62,7 @@ jobs:
           source venv/bin/activate
           python run_tests.py
       
+      - name: Check logs
+        run: |
+          kubectl logs deployment/my-app -n my-namespace
+  
