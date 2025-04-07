@@ -15,6 +15,7 @@ if (!JWT_SECRET){
 
 async function initializeDatabase (){
    try{
+    console.log(process.env.MYSQL_HOST)
     const connection = await mysql.createConnection({
         host: process.env.MYSQL_HOST,
         user: process.env.MYSQL_USER,
