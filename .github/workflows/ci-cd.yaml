@@ -64,5 +64,5 @@ jobs:
       
       - name: Check logs
         run: |
-          kubectl logs deployment/my-app
+          kubectl get namespaces
   
