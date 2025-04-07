@@ -64,5 +64,5 @@ jobs:
       
       - name: Check logs
         run: |
-          kubectl get namespaces
+          kubectl logs mf-node-app
   
