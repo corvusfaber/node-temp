@@ -77,4 +77,5 @@ jobs:
         run: |
           kubectl get services
           kubectl get services mysql-service -o yaml
+          kubectl get endpoints mysql-service
   
