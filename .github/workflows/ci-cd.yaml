@@ -67,6 +67,9 @@ jobs:
           POD_NAME=$(kubectl get pods -l app=mf-node-app -o jsonpath="{.items[0].metadata.name}")
           echo "Showing logs for pod: $POD_NAME"
           kubectl logs $POD_NAME
+          kubectl exec -it $POD_NAM -- nslookup mysql-service
+          kubectl get pods -n kube-system | grep coredns
+          kubectl get pods --all-namespaces
 
       - name: Check mysql logs
         run: |
@@ -78,4 +81,8 @@ jobs:
           kubectl get services
           kubectl get services mysql-service -o yaml
           kubectl get endpoints mysql-service
+          kubectl get pods -l app=mysql -o wide
+          kubectl logs mysql-0
+          
+
   
