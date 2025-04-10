@@ -2,9 +2,9 @@ import subprocess
 import time
 import pytest
 import requests
-
+# # minikube start  
 def deploy_app():
-    subprocess.run(["minikube", "start"], check=True)
+    subprocess.run(["minikube", "start", "--driver=docker", "--preload=false"], check=True)
     subprocess.run(["minikube", "ip"], check=True)
     subprocess.run(["docker", "build", "-t", "malcolmcfraser/mf-node-app-template:latest", "."], check=True)
     subprocess.run(["docker", "push","malcolmcfraser/mf-node-app-template:latest"], check=True)
