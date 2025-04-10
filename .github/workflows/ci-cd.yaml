@@ -69,7 +69,7 @@ jobs:
           kubectl logs $POD_NAME
           kubectl exec $POD_NAME -- apt-get update
           kubectl exec $POD_NAME -- apt-get install -y dnsutils
-          kubectl exec $POD_NAME -- nslookup google.com
+          kubectl exec $POD_NAME -- nslookup mysql-service
           kubectl get pods -n kube-system | grep coredns
           kubectl get pods --all-namespaces
 
