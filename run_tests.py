@@ -10,8 +10,7 @@ def deploy_app():
     subprocess.run(["docker", "push","malcolmcfraser/mf-node-app-template:latest"], check=True)
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/mysql-statefulset.yaml"], check=True) # path to statefulset
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app.yaml"], check=True)# path to node-deployment-template
-    subprocess.run(["kubectl", "wait", "--for=condition=available", "--timeout=120s", "deployment/mf-node-app"], check=True)
-    #subprocess.run(["minikube", "service", "mf-node-app-service", "--url"])
+    subprocess.run(["kubectl", "wait", "--for=condition=available", "--timeout=60s", "deployment/mf-node-app"], check=True)
     
     # Wait for the pods to be ready
     for _ in range(30):
@@ -36,6 +35,10 @@ def wait_for_service(url):
             time.sleep(10)
     raise Exception("Service not ready")
 
+def get_pod_logs():
+    podname = subprocess.check_output(["kubectl", "get","pods", "-l", "app=mf-node-app", "-o", "jsonpath={.items[0].metadata.name}"]).decode().strip()
+    time.sleep(5)
+
 if __name__ == "__main__":
     print ("Deploying application... ")
     deploy_app()
@@ -45,6 +48,7 @@ if __name__ == "__main__":
     print ("Running tests...")
     with open("test_api.py", "r") as f:
         content = f.read()
-    with open("test_api.py", "w") as f:
-        f.write(content.replace('BASE_URL = "http://localhost:30007"', f'BASE_URL = "{BASE_URL}"'))
+    # with open("test_api.py", "w") as f:
+    #     f.write(content.replace('BASE_URL = "http://localhost:30007"', f'BASE_URL = "{BASE_URL}"'))
     pytest.main(["test_api.py", "-v"])
+    get_pod_logs() # todo test this tommorow. it will fail, but use that as a starting point.

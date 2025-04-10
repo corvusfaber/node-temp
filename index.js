@@ -14,11 +14,14 @@ if (!JWT_SECRET){
 }
 
 async function initializeDatabase (){
+   try{
+    console.log("This is the host ===================================================================     ================= :" + process.env.MYSQL_HOST)
     const connection = await mysql.createConnection({
         host: process.env.MYSQL_HOST,
         user: process.env.MYSQL_USER,
         password: process.env.MYSQL_PASSWORD,
-        database: process.env.MYSQL_DATABASE
+        database: process.env.MYSQL_DATABASE,
+        connectTimeout: 10000
     });
     await connection.execute(
         `CREATE TABLE IF NOT EXISTS users (
@@ -28,6 +31,9 @@ async function initializeDatabase (){
     );
     await connection.end();
     console.log('Database initialized')
+}catch (error){
+    console.error("Database connection error:", error);
+}
 }
 
 initializeDatabase().catch(console.error);
