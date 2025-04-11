@@ -33,7 +33,6 @@ def api_base_url():
 def test_register_success(api_base_url):
     payload = {"username": USERNAME, "password": "testpassword"}
     response = requests.post(f"{api_base_url}/register", json=payload) #wait
-    time.sleep(5)
     assert response.status_code == 201
     assert response.text == "User registered"
 
