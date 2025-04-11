@@ -9,6 +9,7 @@ def deploy_app():
     subprocess.run(["docker", "build", "-t", "malcolmcfraser/mf-node-app-template:latest", "."], check=True)
     subprocess.run(["docker", "push","malcolmcfraser/mf-node-app-template:latest"], check=True)
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/mysql-statefulset.yaml"], check=True) # path to statefulset
+    time.sleep(10)
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app.yaml"], check=True)# path to node-deployment-template
     subprocess.run(["kubectl", "wait", "--for=condition=available", "--timeout=60s", "deployment/mf-node-app"], check=True)
     
