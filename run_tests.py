@@ -10,7 +10,7 @@ def deploy_app():
     subprocess.run(["docker", "build", "-t", "malcolmcfraser/mf-node-app-template:latest", "."], check=True)
     subprocess.run(["docker", "push","malcolmcfraser/mf-node-app-template:latest"], check=True)
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/mysql-statefulset.yaml"], check=True) # path to statefulset
-    time.sleep(10)
+    time.sleep(10) # Wait for mysql stateful set and services before deploying the app.
     subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app.yaml"], check=True)# path to node-deployment-template
     subprocess.run(["kubectl", "wait", "--for=condition=available", "--timeout=60s", "deployment/mf-node-app"], check=True)
     
@@ -53,5 +53,5 @@ if __name__ == "__main__":
     # with open("test_api.py", "w") as f:
     #     f.write(content.replace('BASE_URL = "http://localhost:30007"', f'BASE_URL = "{BASE_URL}"'))
     exit_code = pytest.main(["test_api.py", "-v"])
-    get_pod_logs()
+    # get_pod_logs()
     sys.exit(exit_code)# todo test this tommorow. it will fail, but use that as a starting point.
