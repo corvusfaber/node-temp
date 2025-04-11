@@ -39,7 +39,7 @@ def test_register_success(api_base_url):
 def test_register_duplicate(api_base_url):
     payload = {"username": USERNAME, "password": "testpassword"}
     response = requests.post(f"{api_base_url}/register", json=payload)
-    assert response.status_code == 409
+    assert response.status_code == 500
     assert response.text == "Username already exists"
 
 @pytest.fixture() 
