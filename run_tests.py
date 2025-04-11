@@ -2,6 +2,7 @@ import subprocess
 import time
 import pytest
 import requests
+import sys
 # # minikube start  
 def deploy_app():
     subprocess.run(["minikube", "start", "--driver=docker", "--preload=false"], check=True)
@@ -51,5 +52,6 @@ if __name__ == "__main__":
         content = f.read()
     # with open("test_api.py", "w") as f:
     #     f.write(content.replace('BASE_URL = "http://localhost:30007"', f'BASE_URL = "{BASE_URL}"'))
-    pytest.main(["test_api.py", "-v"])
-    get_pod_logs() # todo test this tommorow. it will fail, but use that as a starting point.
+    exit_code = pytest.main(["test_api.py", "-v"])
+    get_pod_logs()
+    sys.exit(exit_code)# todo test this tommorow. it will fail, but use that as a starting point.
