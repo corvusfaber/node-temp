@@ -2,7 +2,6 @@ name: Python Test with Minikube
 
 on: [push, pull_request]
     
-#jobs
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -61,30 +60,3 @@ jobs:
         run: |
           source venv/bin/activate
           python run_tests.py
-      
-      - name: Check application logs
-        run: |
-          POD_NAME=$(kubectl get pods -l app=mf-node-app -o jsonpath="{.items[0].metadata.name}")
-          echo "Showing logs for pod: $POD_NAME"
-          kubectl logs $POD_NAME
-          kubectl exec $POD_NAME -- apt-get update
-          kubectl exec $POD_NAME -- apt-get install -y dnsutils
-          kubectl exec $POD_NAME -- nslookup mysql-service
-          kubectl get pods -n kube-system | grep coredns
-          kubectl get pods --all-namespaces
-
-      - name: Check mysql logs
-        run: |
-          kubectl describe pod mysql-0
-          kubectl logs mysql-0
-          
-      - name: Check mysql service logs
-        run: |
-          kubectl get services
-          kubectl get services mysql-service -o yaml
-          kubectl get endpoints mysql-service
-          kubectl get pods -l app=mysql -o wide
-          kubectl logs mysql-0
-          
-
-  
