@@ -37,10 +37,6 @@ def wait_for_service(url):
             time.sleep(10)
     raise Exception("Service not ready")
 
-def get_pod_logs():
-    podname = subprocess.check_output(["kubectl", "get","pods", "-l", "app=mf-node-app", "-o", "jsonpath={.items[0].metadata.name}"]).decode().strip()
-    time.sleep(5)
-
 if __name__ == "__main__":
     print ("Deploying application... ")
     deploy_app()
@@ -50,8 +46,5 @@ if __name__ == "__main__":
     print ("Running tests...")
     with open("test_api.py", "r") as f:
         content = f.read()
-    # with open("test_api.py", "w") as f:
-    #     f.write(content.replace('BASE_URL = "http://localhost:30007"', f'BASE_URL = "{BASE_URL}"'))
     exit_code = pytest.main(["test_api.py", "-v"])
-    # get_pod_logs()
-    sys.exit(exit_code)# todo test this tommorow. it will fail, but use that as a starting point.
+    sys.exit(exit_code)
