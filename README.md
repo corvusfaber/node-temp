@@ -18,18 +18,17 @@ graphql
 Copy
 Edit
 .
-├── index.js                      # Main Express app with auth endpoints
-├── test_api.py                       # API-level integration tests (Pytest)
-├── run_tests.py                      # Deploys app to Minikube and runs tests
-├── requirements.txt                  # Python dependencies for testing
+├── index.js                        # Main Express app with auth endpoints
+├── test_api.py                     # API-level integration tests (Pytest)
+├── run_tests.py                    # Deploys app to Minikube and runs tests
+├── requirements.txt                # Python dependencies for testing
 ├── .github/
 │   └── workflows/
-│       └── ci-cd.yaml                # GitHub Actions pipeline config
+│       └── ci-cd.yaml              # GitHub Actions pipeline config
 └── node-app-template-artifacts/
-    ├── node-app.yaml                 # Kubernetes Deployment/Service for Node.js app
-    └── mysql-statefulset.yaml       # Kubernetes StatefulSet for MySQL
+    ├── node-app.yaml               # Kubernetes Deployment/Service for Node.js app
+    └── mysql-statefulset.yaml     # Kubernetes StatefulSet for MySQL
 
-    
 ⚙️ API Endpoints
 Method	Endpoint	Description	Auth Required
 POST	/register	Register a new user	❌
