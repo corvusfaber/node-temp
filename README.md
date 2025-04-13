@@ -13,7 +13,7 @@ Integration Testing – Automated test suite with Pytest
 
 Self-contained Deployment – Start Minikube, deploy, and test automatically via run_tests.py
 
-<pre> ## 📁 Project Structure ```  
+<pre> ## 📁 Project Structure   
  .
 ├── index.js                        # Main Express app with auth endpoints
 ├── test_api.py                     # API-level integration tests (Pytest)
@@ -25,7 +25,7 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 └── node-app-template-artifacts/
     ├── node-app.yaml               # Kubernetes Deployment/Service for Node.js app
     └── mysql-statefulset.yaml      # Kubernetes StatefulSet for MySQL
- ``` </pre>
+  </pre>
 
 ⚙️ API Endpoints
 Method	Endpoint	Description	Auth Required
