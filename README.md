@@ -1,6 +1,3 @@
-🔐 Node.js Auth API with JWT, MySQL, and CI/CD via GitHub Actions + Minikube
-This project provides a secure and scalable Node.js REST API with user authentication backed by MySQL, integrated with a full Kubernetes deployment pipeline and end-to-end tests.
-
 🚀 Features
 JWT Authentication – Login returns a token for authenticated routes
 
@@ -17,7 +14,7 @@ Integration Testing – Automated test suite with Pytest
 Self-contained Deployment – Start Minikube, deploy, and test automatically via run_tests.py
 
 📁 Project Structure
-bash
+graphql
 Copy
 Edit
 .
@@ -61,17 +58,17 @@ bash
 Copy
 Edit
 python run_tests.py
-This script:
+This script will:
 
-Starts Minikube
+Start Minikube
 
-Builds and pushes the Docker image
+Build and push the Docker image
 
-Deploys MySQL and the Node.js app to Kubernetes
+Deploy MySQL and the Node.js app to Kubernetes
 
-Waits for pods and services to be ready
+Wait for pods and services to be ready
 
-Executes all integration tests
+Execute all integration tests
 
 ✅ Test Coverage
 Tests included in test_api.py:
@@ -84,16 +81,16 @@ Tests included in test_api.py:
 
 🧼 Unregister a user with valid JWT
 
-The service URL and node port are automatically detected using kubectl and minikube.
+The service URL and NodePort are automatically detected using kubectl and minikube.
 
-⚡ GitHub Actions Pipeline (.github/workflows/ci-cd.yaml)
-This pipeline runs on every push or pull_request:
+⚡ GitHub Actions Pipeline
+Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pull_request:
 
 ✅ Sets up Minikube
 
 🔒 Injects secrets into Kubernetes (jwt-secret, mysql-secret)
 
-🐍 Creates a Python virtual environment and installs test dependencies
+🐍 Creates Python virtual environment and installs dependencies
 
 🧪 Runs integration tests
 
@@ -107,7 +104,7 @@ JWT_SECRET	JWT signing secret
 DOCKER_USERNAME	Docker Hub username (for image push)
 DOCKER_PASSWORD	Docker Hub password or access token
 🐳 Docker Image
-The app builds into a Docker image:
+To build and push the Docker image:
 
 bash
 Copy
@@ -123,18 +120,22 @@ mysql-statefulset.yaml – MySQL StatefulSet with persistent storage
 
 node-app.yaml – Node.js API Deployment and NodePort Service
 
-Secrets like database credentials and JWT secrets are injected using kubectl create secret.
+Secrets (e.g., DB credentials, JWT secret) are injected using:
 
+bash
+Copy
+Edit
+kubectl create secret generic ...
 🔐 Security Highlights
-JWT tokens signed with server secret
+JWT tokens signed with a server secret
 
 Passwords hashed with bcrypt
 
-Rate limiting protects against brute-force
+Rate limiting to prevent brute-force attacks
 
 Kubernetes Secrets for config separation
 
-CI/CD pipeline keeps environment isolated
+Isolated environments via CI/CD pipeline
 
 📌 TODOs
  Add Helm chart support
@@ -147,4 +148,3 @@ CI/CD pipeline keeps environment isolated
 
 👥 Author
 Maintained by a DevOps engineer passionate about cloud-native deployments, automation, and secure architecture.
-
