@@ -1,18 +1,18 @@
 # 🚀 Features
 
-JWT Authentication – Login returns a token for authenticated routes
-
-User Management – Register and unregister users securely
-
-MySQL Integration – Persistent data layer
-
-Rate Limiting – Prevent brute-force attacks
-
-CI/CD Pipeline – GitHub Actions with Minikube simulation
-
-Integration Testing – Automated test suite with Pytest
-
-Self-contained Deployment – Start Minikube, deploy, and test automatically via run_tests.py
+ - JWT Authentication – Login returns a token for authenticated routes
+ 
+ - User Management – Register and unregister users securely
+ 
+ - MySQL Integration – Persistent data layer
+ 
+ - Rate Limiting – Prevent brute-force attacks
+ 
+ - CI/CD Pipeline – GitHub Actions with Minikube simulation
+ 
+ - Integration Testing – Automated test suite with Pytest
+ 
+ - Self-contained Deployment – Start Minikube, deploy, and test automatically via run_tests.py
 
 <pre> 📁 Project Structure   
  .
@@ -55,23 +55,11 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 
 ## 🔍 Run Local Tests
 Install dependencies:
-
-- bash
-  
-- Copy
-  
-- Edit
   
 - pip install -r requirements.txt
 
 
 ## Run the full test and deploy cycle:
-
-- bash
-  
-- Copy
-  
-- Edit
   
 - python run_tests.py
 
@@ -103,40 +91,34 @@ The service URL and NodePort are automatically detected using kubectl and miniku
 # ⚡ GitHub Actions Pipeline
 Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pull_request:
 
-## ✅ Sets up Minikube
-
-## 🔒 Injects secrets into Kubernetes (jwt-secret, mysql-secret)
-
-## 🐍 Creates Python virtual environment and installs dependencies
-
-## 🧪 Runs integration tests
-
-## 🔑 GitHub Secrets Required
-
-  - Secret Name	Description
-  
-  - MYSQL_HOST	MySQL host address
-  
-  - MYSQL_USER	MySQL username
-  
-  - MYSQL_PASSWORD	MySQL password
-  
-  - MYSQL_DATABASE	MySQL database name
-  
-  - JWT_SECRET	JWT signing secret
-  
-  - DOCKER_USERNAME	Docker Hub username (for image push)
-  
-  - DOCKER_PASSWORD	Docker Hub password or access token
+ ## ✅ Sets up Minikube
+ 
+ ## 🔒 Injects secrets into Kubernetes (jwt-secret, mysql-secret)
+ 
+ ## 🐍 Creates Python virtual environment and installs dependencies
+ 
+ ## 🧪 Runs integration tests
+ 
+ ## 🔑 GitHub Secrets Required
+ 
+   - Secret Name	Description
+   
+   - MYSQL_HOST	MySQL host address
+   
+   - MYSQL_USER	MySQL username
+   
+   - MYSQL_PASSWORD	MySQL password
+   
+   - MYSQL_DATABASE	MySQL database name
+   
+   - JWT_SECRET	JWT signing secret
+   
+   - DOCKER_USERNAME	Docker Hub username (for image push)
+   
+   - DOCKER_PASSWORD	Docker Hub password or access token
 
 # 🐳 Docker Image
 ## To build and push the Docker image:
-
-- bash
-
-- Copy
-
-- Edit
 
 - docker build -t malcolmcfraser/mf-node-app-template:latest .
 
@@ -146,41 +128,36 @@ Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pul
 
 
 # ☸️ Kubernetes Deployment
-Your Kubernetes manifests include:
+## Your Kubernetes manifests include:
 
-mysql-statefulset.yaml – MySQL StatefulSet with persistent storage
+ - mysql-statefulset.yaml – MySQL StatefulSet with persistent storage
+ 
+ - node-app.yaml – Node.js API Deployment and NodePort Service
+ 
+ - Secrets (e.g., DB credentials, JWT secret) are injected using:
 
-node-app.yaml – Node.js API Deployment and NodePort Service
-
-Secrets (e.g., DB credentials, JWT secret) are injected using:
-
-bash
-
-Copy
-
-Edit
-
-kubectl create secret generic ...
 
 # 🔐 Security Highlights
 JWT tokens signed with a server secret
 
-Passwords hashed with bcrypt
-
-Rate limiting to prevent brute-force attacks
-
-Kubernetes Secrets for config separation
-
-Isolated environments via CI/CD pipeline
+ - Passwords hashed with bcrypt
+ 
+ - Rate limiting to prevent brute-force attacks
+ 
+ - Kubernetes Secrets for config separation
+ 
+ - Isolated environments via CI/CD pipeline
 
 # 📌 TODOs
- Add Helm chart support
 
- Add Postman collection and OpenAPI docs
-
- Expand test data reusability and clean-up logic
-
- Add unit tests for Node.js logic
+ - Add Helm chart support
+ 
+ -  Add Postman collection and OpenAPI docs
+ 
+ - Expand test data reusability and clean-up logic
+ 
+ - Add unit tests for Node.js logic
 
 # 👥 Author
+
 Maintained by a DevOps engineer passionate about cloud-native deployments, automation, and secure architecture.
