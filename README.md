@@ -1,4 +1,5 @@
-🚀 Features
+# 🚀 Features
+
 JWT Authentication – Login returns a token for authenticated routes
 
 User Management – Register and unregister users securely
@@ -13,7 +14,7 @@ Integration Testing – Automated test suite with Pytest
 
 Self-contained Deployment – Start Minikube, deploy, and test automatically via run_tests.py
 
-<pre> ## 📁 Project Structure   
+<pre> 📁 Project Structure   
  .
 ├── index.js                        # Main Express app with auth endpoints
 ├── test_api.py                     # API-level integration tests (Pytest)
@@ -27,7 +28,7 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
     └── mysql-statefulset.yaml      # Kubernetes StatefulSet for MySQL
   </pre>
 
-⚙️ API Endpoints 
+# ⚙️ API Endpoints 
 
 - Method	Endpoint	Description	Auth Required 
 
@@ -37,9 +38,9 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 
 - DELETE	/unregister	Delete own user account	
 
-🧪 Running Tests Locally
+# 🧪 Running Tests Locally
 
-🐳 Prerequisites
+## 🐳 Prerequisites
 
 - Docker
 
@@ -52,7 +53,7 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 - Node.js and npm
 
 
-🔍 Run Local Tests
+## 🔍 Run Local Tests
 Install dependencies:
 
 - bash
@@ -64,7 +65,7 @@ Install dependencies:
 - pip install -r requirements.txt
 
 
-Run the full test and deploy cycle:
+## Run the full test and deploy cycle:
 
 - bash
   
@@ -86,7 +87,7 @@ Run the full test and deploy cycle:
       
      - Execute all integration tests
 
-✅ Test Coverage
+## ✅ Test Coverage
 - Tests included in test_api.py:
 
      ✅ Register a new user
@@ -99,18 +100,18 @@ Run the full test and deploy cycle:
 
 The service URL and NodePort are automatically detected using kubectl and minikube.
 
-⚡ GitHub Actions Pipeline
+# ⚡ GitHub Actions Pipeline
 Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pull_request:
 
-✅ Sets up Minikube
+## ✅ Sets up Minikube
 
-🔒 Injects secrets into Kubernetes (jwt-secret, mysql-secret)
+## 🔒 Injects secrets into Kubernetes (jwt-secret, mysql-secret)
 
-🐍 Creates Python virtual environment and installs dependencies
+## 🐍 Creates Python virtual environment and installs dependencies
 
-🧪 Runs integration tests
+## 🧪 Runs integration tests
 
-🔑 GitHub Secrets Required
+## 🔑 GitHub Secrets Required
 
   - Secret Name	Description
   
@@ -128,8 +129,8 @@ Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pul
   
   - DOCKER_PASSWORD	Docker Hub password or access token
 
-🐳 Docker Image
-To build and push the Docker image:
+# 🐳 Docker Image
+## To build and push the Docker image:
 
 - bash
 
@@ -144,7 +145,7 @@ To build and push the Docker image:
 - This image is used in the Kubernetes deployment manifest.
 
 
-☸️ Kubernetes Deployment
+# ☸️ Kubernetes Deployment
 Your Kubernetes manifests include:
 
 mysql-statefulset.yaml – MySQL StatefulSet with persistent storage
@@ -161,7 +162,7 @@ Edit
 
 kubectl create secret generic ...
 
-🔐 Security Highlights
+# 🔐 Security Highlights
 JWT tokens signed with a server secret
 
 Passwords hashed with bcrypt
@@ -172,7 +173,7 @@ Kubernetes Secrets for config separation
 
 Isolated environments via CI/CD pipeline
 
-📌 TODOs
+# 📌 TODOs
  Add Helm chart support
 
  Add Postman collection and OpenAPI docs
@@ -181,5 +182,5 @@ Isolated environments via CI/CD pipeline
 
  Add unit tests for Node.js logic
 
-👥 Author
+# 👥 Author
 Maintained by a DevOps engineer passionate about cloud-native deployments, automation, and secure architecture.
