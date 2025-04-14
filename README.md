@@ -101,14 +101,23 @@ Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pul
 🧪 Runs integration tests
 
 🔑 GitHub Secrets Required
+
 Secret Name	Description
+
 MYSQL_HOST	MySQL host address
+
 MYSQL_USER	MySQL username
+
 MYSQL_PASSWORD	MySQL password
+
 MYSQL_DATABASE	MySQL database name
+
 JWT_SECRET	JWT signing secret
+
 DOCKER_USERNAME	Docker Hub username (for image push)
+
 DOCKER_PASSWORD	Docker Hub password or access token
+
 🐳 Docker Image
 To build and push the Docker image:
 
