@@ -41,51 +41,61 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 
 🐳 Prerequisites
 
-Docker
+- Docker
 
-Python 3.8+
+- Python 3.8+
 
-Minikube (Docker driver)
+- Minikube (Docker driver)
 
-kubectl
+- kubectl
 
-Node.js and npm
+- Node.js and npm
+
 
 🔍 Run Local Tests
 Install dependencies:
 
-bash
-Copy
-Edit
-pip install -r requirements.txt
+- bash
+  
+- Copy
+  
+- Edit
+  
+- pip install -r requirements.txt
+
+
 Run the full test and deploy cycle:
 
-bash
-Copy
-Edit
-python run_tests.py
-This script will:
+- bash
+  
+- Copy
+  
+- Edit
+  
+- python run_tests.py
 
-Start Minikube
-
-Build and push the Docker image
-
-Deploy MySQL and the Node.js app to Kubernetes
-
-Wait for pods and services to be ready
-
-Execute all integration tests
+     This script will:
+     
+     - Start Minikube
+      
+     - Build and push the Docker image
+      
+     - Deploy MySQL and the Node.js app to Kubernetes
+      
+     - Wait for pods and services to be ready
+      
+     - Execute all integration tests
 
 ✅ Test Coverage
-Tests included in test_api.py:
+- Tests included in test_api.py:
 
-✅ Register a new user
-
-🚫 Prevent duplicate usernames
-
-🔐 Login with valid/invalid credentials
-
-🧼 Unregister a user with valid JWT
+     ✅ Register a new user
+     
+     🚫 Prevent duplicate usernames
+     
+     🔐 Login with valid/invalid credentials
+     
+     🧼 Unregister a user with valid JWT
 
 The service URL and NodePort are automatically detected using kubectl and minikube.
 
@@ -102,31 +112,37 @@ Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pul
 
 🔑 GitHub Secrets Required
 
-Secret Name	Description
-
-MYSQL_HOST	MySQL host address
-
-MYSQL_USER	MySQL username
-
-MYSQL_PASSWORD	MySQL password
-
-MYSQL_DATABASE	MySQL database name
-
-JWT_SECRET	JWT signing secret
-
-DOCKER_USERNAME	Docker Hub username (for image push)
-
-DOCKER_PASSWORD	Docker Hub password or access token
+  - Secret Name	Description
+  
+  - MYSQL_HOST	MySQL host address
+  
+  - MYSQL_USER	MySQL username
+  
+  - MYSQL_PASSWORD	MySQL password
+  
+  - MYSQL_DATABASE	MySQL database name
+  
+  - JWT_SECRET	JWT signing secret
+  
+  - DOCKER_USERNAME	Docker Hub username (for image push)
+  
+  - DOCKER_PASSWORD	Docker Hub password or access token
 
 🐳 Docker Image
 To build and push the Docker image:
 
-bash
-Copy
-Edit
-docker build -t malcolmcfraser/mf-node-app-template:latest .
-docker push malcolmcfraser/mf-node-app-template:latest
-This image is used in the Kubernetes deployment manifest.
+- bash
+
+- Copy
+
+- Edit
+
+- docker build -t malcolmcfraser/mf-node-app-template:latest .
+
+- docker push malcolmcfraser/mf-node-app-template:latest
+
+- This image is used in the Kubernetes deployment manifest.
+
 
 ☸️ Kubernetes Deployment
 Your Kubernetes manifests include:
@@ -138,9 +154,13 @@ node-app.yaml – Node.js API Deployment and NodePort Service
 Secrets (e.g., DB credentials, JWT secret) are injected using:
 
 bash
+
 Copy
+
 Edit
+
 kubectl create secret generic ...
+
 🔐 Security Highlights
 JWT tokens signed with a server secret
 
