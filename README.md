@@ -27,11 +27,15 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
     └── mysql-statefulset.yaml      # Kubernetes StatefulSet for MySQL
   </pre>
 
-⚙️ API Endpoints \n
-Method	Endpoint	Description	Auth Required \n
-POST	/register	Register a new user	\n
-POST	/login	Log in and receive JWT	\n
-DELETE	/unregister	Delete own user account	\n
+⚙️ API Endpoints 
+
+Method	Endpoint	Description	Auth Required 
+
+POST	/register	Register a new user	
+
+POST	/login	Log in and receive JWT	
+
+DELETE	/unregister	Delete own user account	
 
 🧪 Running Tests Locally
 
