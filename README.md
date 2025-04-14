@@ -87,7 +87,7 @@ Install dependencies:
       
      - Execute all integration tests
 
-##✅ Test Coverage
+## ✅ Test Coverage
 - Tests included in test_api.py:
 
      ✅ Register a new user
@@ -100,7 +100,7 @@ Install dependencies:
 
 The service URL and NodePort are automatically detected using kubectl and minikube.
 
-#⚡ GitHub Actions Pipeline
+# ⚡ GitHub Actions Pipeline
 Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pull_request:
 
 ## ✅ Sets up Minikube
