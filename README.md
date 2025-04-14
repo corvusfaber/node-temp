@@ -17,7 +17,7 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 graphql
 Copy
 Edit
-.
+
 ├── index.js                          # Main Express app with auth endpoints
 ├── test_api.py                       # API-level integration tests (Pytest)
 ├── run_tests.py                      # Deploys app to Minikube and runs tests
@@ -27,12 +27,13 @@ Edit
 │       └── ci-cd.yaml                # GitHub Actions pipeline config
 └── node-app-template-artifacts/
     ├── node-app.yaml                 # Kubernetes Deployment/Service for Node.js app
-    └── mysql-statefulset.yaml       # Kubernetes StatefulSet for MySQL
+    └── mysql-statefulset.yaml        # Kubernetes StatefulSet for MySQL
+
 ⚙️ API Endpoints
 Method	Endpoint	Description	Auth Required
-POST	/register	Register a new user	❌
-POST	/login	Log in and receive JWT	❌
-DELETE	/unregister	Delete own user account	✅
+POST	/register	Register a new user	
+POST	/login	Log in and receive JWT	
+DELETE	/unregister	Delete own user account	
 🧪 Running Tests Locally
 🐳 Prerequisites
 Docker
