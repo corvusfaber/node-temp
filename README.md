@@ -29,13 +29,13 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 
 ⚙️ API Endpoints 
 
-Method	Endpoint	Description	Auth Required 
+- Method	Endpoint	Description	Auth Required 
 
-POST	/register	Register a new user	
+- POST	/register	Register a new user	
 
-POST	/login	Log in and receive JWT	
+- POST	/login	Log in and receive JWT	
 
-DELETE	/unregister	Delete own user account	
+- DELETE	/unregister	Delete own user account	
 
 🧪 Running Tests Locally
 
