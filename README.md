@@ -1,4 +1,4 @@
-#🚀 Features
+# 🚀 Features
 
 JWT Authentication – Login returns a token for authenticated routes
 
@@ -14,7 +14,7 @@ Integration Testing – Automated test suite with Pytest
 
 Self-contained Deployment – Start Minikube, deploy, and test automatically via run_tests.py
 
-<pre> ## 📁 Project Structure   
+<pre> 📁 Project Structure   
  .
 ├── index.js                        # Main Express app with auth endpoints
 ├── test_api.py                     # API-level integration tests (Pytest)
@@ -28,7 +28,7 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
     └── mysql-statefulset.yaml      # Kubernetes StatefulSet for MySQL
   </pre>
 
-#⚙️ API Endpoints 
+# ⚙️ API Endpoints 
 
 - Method	Endpoint	Description	Auth Required 
 
@@ -38,9 +38,9 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 
 - DELETE	/unregister	Delete own user account	
 
-#🧪 Running Tests Locally
+# 🧪 Running Tests Locally
 
-##🐳 Prerequisites
+## 🐳 Prerequisites
 
 - Docker
 
@@ -53,7 +53,7 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
 - Node.js and npm
 
 
-##🔍 Run Local Tests
+## 🔍 Run Local Tests
 Install dependencies:
 
 - bash
@@ -65,7 +65,7 @@ Install dependencies:
 - pip install -r requirements.txt
 
 
-##Run the full test and deploy cycle:
+## Run the full test and deploy cycle:
 
 - bash
   
