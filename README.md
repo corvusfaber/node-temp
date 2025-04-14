@@ -28,12 +28,15 @@ Self-contained Deployment – Start Minikube, deploy, and test automatically via
   </pre>
 
 ⚙️ API Endpoints
-Method	Endpoint	Description	Auth Required
-POST	/register	Register a new user	❌
-POST	/login	Log in and receive JWT	❌
-DELETE	/unregister	Delete own user account	✅
+Method	Endpoint	Description	Auth Required 
+POST	/register	Register a new user	
+POST	/login	Log in and receive JWT	
+DELETE	/unregister	Delete own user account	
+
 🧪 Running Tests Locally
+
 🐳 Prerequisites
+
 Docker
 
 Python 3.8+
