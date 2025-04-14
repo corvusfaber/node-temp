@@ -1,126 +1,151 @@
-🛠️ Node.js + Kubernetes CI/CD Template
-A cloud-native template for deploying a secure Node.js API with MySQL on Kubernetes using Minikube and GitHub Actions.
-
 🚀 Features
-🔐 JWT Authentication – Login returns a token for authenticated routes
+JWT Authentication – Login returns a token for authenticated routes
 
-👤 User Management – Register and unregister users securely
+User Management – Register and unregister users securely
 
-🗃️ MySQL Integration – Persistent data layer
+MySQL Integration – Persistent data layer
 
-🛡️ Rate Limiting – Prevent brute-force attacks
+Rate Limiting – Prevent brute-force attacks
 
-⚙️ CI/CD Pipeline – GitHub Actions with Minikube simulation
+CI/CD Pipeline – GitHub Actions with Minikube simulation
 
-🧪 Integration Testing – Automated test suite with Pytest
+Integration Testing – Automated test suite with Pytest
 
-📦 Self-contained Deployment – Start Minikube, deploy, and test automatically via run_tests.py
+Self-contained Deployment – Start Minikube, deploy, and test automatically via run_tests.py
 
-📁 Project Structure
-graphql
-Copy
-Edit
-.
+<pre> ## 📁 Project Structure   
+ .
 ├── index.js                        # Main Express app with auth endpoints
-├── test_api.py                    # API-level integration tests (Pytest)
-├── run_tests.py                   # Deploys app to Minikube and runs tests
-├── requirements.txt               # Python dependencies for testing
+├── test_api.py                     # API-level integration tests (Pytest)
+├── run_tests.py                    # Deploys app to Minikube and runs tests
+├── requirements.txt                # Python dependencies for testing
 ├── .github/
 │   └── workflows/
-│       └── ci-cd.yaml             # GitHub Actions pipeline config
+│       └── ci-cd.yaml              # GitHub Actions pipeline config
 └── node-app-template-artifacts/
-    ├── node-app.yaml              # Kubernetes Deployment/Service for Node.js app
-    └── mysql-statefulset.yaml     # Kubernetes StatefulSet for MySQL
-⚙️ API Endpoints
-Method	Endpoint	Description	Auth Required
-POST	/register	Register a new user	❌
-POST	/login	Log in and receive JWT	❌
-DELETE	/unregister	Delete own user account	✅
+    ├── node-app.yaml               # Kubernetes Deployment/Service for Node.js app
+    └── mysql-statefulset.yaml      # Kubernetes StatefulSet for MySQL
+  </pre>
+
+⚙️ API Endpoints 
+
+- Method	Endpoint	Description	Auth Required 
+
+- POST	/register	Register a new user	
+
+- POST	/login	Log in and receive JWT	
+
+- DELETE	/unregister	Delete own user account	
+
 🧪 Running Tests Locally
+
 🐳 Prerequisites
-Make sure the following are installed:
 
-Docker
+- Docker
 
-Python 3.8+
+- Python 3.8+
 
-Minikube (Docker driver)
+- Minikube (Docker driver)
 
-kubectl
+- kubectl
 
-Node.js and npm
+- Node.js and npm
+
 
 🔍 Run Local Tests
-Install dependencies
+Install dependencies:
 
-bash
-Copy
-Edit
-pip install -r requirements.txt
-Run the full test and deploy cycle
+- bash
+  
+- Copy
+  
+- Edit
+  
+- pip install -r requirements.txt
 
-bash
-Copy
-Edit
-python run_tests.py
-This script will:
 
-Start Minikube
+Run the full test and deploy cycle:
 
-Build and push the Docker image
+- bash
+  
+- Copy
+  
+- Edit
+  
+- python run_tests.py
 
-Deploy MySQL and the Node.js app to Kubernetes
-
-Wait for pods and services to be ready
-
-Execute all integration tests
+     This script will:
+     
+     - Start Minikube
+      
+     - Build and push the Docker image
+      
+     - Deploy MySQL and the Node.js app to Kubernetes
+      
+     - Wait for pods and services to be ready
+      
+     - Execute all integration tests
 
 ✅ Test Coverage
-The test_api.py suite includes:
+- Tests included in test_api.py:
 
-✅ Register a new user
-
-🚫 Prevent duplicate usernames
-
-🔐 Login with valid/invalid credentials
-
-🧼 Unregister a user with valid JWT
+     ✅ Register a new user
+     
+     🚫 Prevent duplicate usernames
+     
+     🔐 Login with valid/invalid credentials
+     
+     🧼 Unregister a user with valid JWT
 
 The service URL and NodePort are automatically detected using kubectl and minikube.
 
 ⚡ GitHub Actions Pipeline
-Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pull_request.
+Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pull_request:
 
-🧪 What It Does:
 ✅ Sets up Minikube
 
 🔒 Injects secrets into Kubernetes (jwt-secret, mysql-secret)
 
 🐍 Creates Python virtual environment and installs dependencies
 
-🔬 Runs integration tests
+🧪 Runs integration tests
 
-🔑 Required GitHub Secrets
-Secret Name	Description
-MYSQL_HOST	MySQL host address
-MYSQL_USER	MySQL username
-MYSQL_PASSWORD	MySQL password
-MYSQL_DATABASE	MySQL database name
-JWT_SECRET	JWT signing secret
-DOCKER_USERNAME	Docker Hub username
-DOCKER_PASSWORD	Docker Hub password or token
+🔑 GitHub Secrets Required
+
+  - Secret Name	Description
+  
+  - MYSQL_HOST	MySQL host address
+  
+  - MYSQL_USER	MySQL username
+  
+  - MYSQL_PASSWORD	MySQL password
+  
+  - MYSQL_DATABASE	MySQL database name
+  
+  - JWT_SECRET	JWT signing secret
+  
+  - DOCKER_USERNAME	Docker Hub username (for image push)
+  
+  - DOCKER_PASSWORD	Docker Hub password or access token
+
 🐳 Docker Image
-Build and push the Docker image:
+To build and push the Docker image:
 
-bash
-Copy
-Edit
-docker build -t malcolmcfraser/mf-node-app-template:latest .
-docker push malcolmcfraser/mf-node-app-template:latest
-This image is referenced in your Kubernetes deployment manifest.
+- bash
+
+- Copy
+
+- Edit
+
+- docker build -t malcolmcfraser/mf-node-app-template:latest .
+
+- docker push malcolmcfraser/mf-node-app-template:latest
+
+- This image is used in the Kubernetes deployment manifest.
+
 
 ☸️ Kubernetes Deployment
-Your deployment includes the following manifests:
+Your Kubernetes manifests include:
 
 mysql-statefulset.yaml – MySQL StatefulSet with persistent storage
 
@@ -129,19 +154,23 @@ node-app.yaml – Node.js API Deployment and NodePort Service
 Secrets (e.g., DB credentials, JWT secret) are injected using:
 
 bash
+
 Copy
+
 Edit
+
 kubectl create secret generic ...
+
 🔐 Security Highlights
-JWT tokens signed with a server-side secret
+JWT tokens signed with a server secret
 
 Passwords hashed with bcrypt
 
 Rate limiting to prevent brute-force attacks
 
-Configuration secrets stored in Kubernetes Secrets
+Kubernetes Secrets for config separation
 
-Isolated testing environment via CI/CD pipeline
+Isolated environments via CI/CD pipeline
 
 📌 TODOs
  Add Helm chart support
