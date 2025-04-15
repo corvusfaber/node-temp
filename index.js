@@ -66,6 +66,19 @@ async function initializeDatabase (){
         )`
     );
 
+    // Order items table
+    await connection.execute(
+        `CREATE TABLE IF NOT EXISTS order_items (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            order_id INT NOT NULL,
+            product_id INT NOT NULL,
+            quantity INT NOT NULL,
+            price_at_purchase DECIMAL(10, 2) NOT NULL,
+            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+        )`
+    );
+
     await connection.end();
     console.log('Database initialized')
 }catch (error){
