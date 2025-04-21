@@ -27,7 +27,9 @@ async function initializeDatabase (){
         `CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL)`
+        password VARCHAR(255) NOT NULL,
+        isAdmin BOOLEAN DEFAULT FALSE
+        )`
     );
 
     // Products table
@@ -104,7 +106,7 @@ function authenticateToken(req, res, next){
             console.log('❌ Invalid token:', err);
             return res,status(403).send('Invalid or expired token');
         }
-        req.user = user;
+        req.user = user; // Contains { id, username, isAdmin }
         next();
     })
 }
@@ -116,6 +118,7 @@ const rateLimiter = rateLimit({
     headers: true // Include rate limit info in the response headers
 })
 
+// Endpoints
 app.delete("/unregister", rateLimiter, authenticateToken, async(req, res) => {
     console.log('📢 Unregister request received for user:', req.user);
     try{
@@ -145,10 +148,12 @@ app.delete("/unregister", rateLimiter, authenticateToken, async(req, res) => {
 })
 
 app.post('/register', rateLimiter, async(req, res) => {
-    let { username , password } = req.body;
+    let { username , password, isAdmin } = req.body;
     if (!username || !password){
         return res.status(400).send('Username and Password are required');
     }
+    // Default to false if isAdmin is not provided
+    isAdmin = isAdmin === true; // Ensure isAdmin is a boolean (true or false)
 
     const hashedPassword = await bcrypt.hash(password, 10);
     try{
@@ -159,8 +164,8 @@ app.post('/register', rateLimiter, async(req, res) => {
             database: process.env.MYSQL_DATABASE
         });
         await connection.execute(
-            'INSERT INTO users (username, password) VALUES (?,?)',
-            [username, hashedPassword]
+            'INSERT INTO users (username, password, isAdmin) VALUES (?,?,?)',
+            [username, hashedPassword, isAdmin]
         );
         await connection.end();
         res.status(201).send('User registered');
@@ -195,13 +200,68 @@ app.post('/login', rateLimiter , async (req, res) => {
         if (!isPasswordValid){
             return res.status(401).send('Invalid username or password')
         }
-        const token = jwt.sign({id: user.id, username: user.username}, JWT_SECRET, {expiresIn: '1h'});
+        const token = jwt.sign({id: user.id, username: user.username, isAdmin: user.isAdmin}, JWT_SECRET, {expiresIn: '1h'});
         res.json({ token });
     } catch (error) {
         res.status(500).send('Error logging in');
     }
 });
 
+// Get all products
+app.get('/products', async (req, res) => {
+    try {
+        const connection = await mysql.createConnection({
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DATABASE
+        });
+        console.log('✅ Connected to database for get products.');
+        const [rows] = await connection.execute('SELECT * FROM products');
+        await connection.end();
+        console.log('✅ Returned rows.');
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).send('Error fetching products');
+    }
+});
+
+// Add role-based middleware for admin routes
+function isAdmin(req, res, next) {
+    if (!req.user.isAdmin) {
+        return res.status(403).send('Admin access required');
+    }
+    next();
+}
+
+// Add product (admin-only)
+app.post('/products', authenticateToken, isAdmin, async (req, res) => {
+    console.log('✅ Start add products.');
+    const { name, description, price, stock, image_url } = req.body;
+    if (!name || !price || !stock) {
+        return res.status(400).send('Name, price, and stock are required');
+    }
+    try {
+        const connection = await mysql.createConnection({
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DATABASE
+        });
+        console.log('✅ Connected to database to add products.');
+        await connection.execute(
+            'INSERT INTO products (name, description, price, stock, image_url) VALUES (?, ?, ?, ?, ?)',
+            [name, description, price, stock, image_url]
+        );
+        await connection.end();
+        console.log('✅ Product added.');
+        res.status(201).send('Product added');
+    } catch (error) {
+        console.error('Error adding product:', error);
+        res.status(500).send('Error adding product');
+    }
+});
 
 app.listen(3000, '0.0.0.0', () => {
     console.log('Server running on port 3000.')
