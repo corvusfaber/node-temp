@@ -7,6 +7,12 @@ const app = express();
 
 app.use(express.json());
 
+// Rate limiter for product-related routes
+const productRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+});
+
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET){
     console.error("Missing token in environment variable")
@@ -208,7 +214,7 @@ app.post('/login', rateLimiter , async (req, res) => {
 });
 
 // Get all products
-app.get('/products', async (req, res) => {
+app.get('/products', rateLimiter, async (req, res) => {
     try {
         const connection = await mysql.createConnection({
             host: process.env.MYSQL_HOST,
@@ -236,7 +242,7 @@ function isAdmin(req, res, next) {
 }
 
 // Add product (admin-only)
-app.post('/products', authenticateToken, isAdmin, async (req, res) => {
+app.post('/products', productRateLimiter, authenticateToken, isAdmin, async (req, res) => {
     console.log('✅ Start add products.');
     const { name, description, price, stock, image_url } = req.body;
     if (!name || !price || !stock) {
