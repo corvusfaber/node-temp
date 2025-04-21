@@ -29,9 +29,9 @@ def wait_for_service(url, timeout=30):
 def api_base_url():
     wait_for_service(BASE_URL)
     return BASE_URL
-#todo add a test for unregister and use variables for test data. It will make clean up way easier.
+
 def test_register_success(api_base_url):
-    payload = {"username": USERNAME, "password": "testpassword"}
+    payload = {"username": USERNAME, "password": "testpassword", "isAdmin": True}
     response = requests.post(f"{api_base_url}/register", json=payload) #wait
     assert response.status_code == 201
     assert response.text == "User registered"
@@ -42,7 +42,7 @@ def test_register_duplicate(api_base_url):
     assert response.status_code == 409
     assert response.text == "Username already exists"
 
-@pytest.fixture() 
+@pytest.fixture()
 def test_login_success(api_base_url):
     payload = {"username": USERNAME, "password": "testpassword"}
     response = requests.post(f"{api_base_url}/login", json=payload)
@@ -56,21 +56,34 @@ def test_login_invalid_password(api_base_url):
     response = requests.post(f"{api_base_url}/login", json=payload)
     assert response.status_code == 401
     assert response.text == "Invalid username or password"
-    
+
 def test_login_nonexistent_user(api_base_url):
     payload = {"username": "nonexistantuser", "password": "wrongpassword"}
     response = requests.post(f"{api_base_url}/login", json=payload)
     assert response.status_code == 401
     assert response.text == "Invalid username or password"
 
+def test_add_product_success(api_base_url, test_login_success):
+    product = {
+        "name": "New Product",
+        "description": "A new product",
+        "price": 29.99,
+        "stock": 50,
+        "image_url": "http://example.com/new.jpg"
+    }
+    headers = {"Authorization": f"Bearer {test_login_success}"}
+    response = requests.post(f"{api_base_url}/products", json=product, headers=headers)
+    assert response.status_code == 201
+    assert response.text == "Product added"
+
+def test_get_products_success(api_base_url, test_login_success):
+    response = requests.get(f"{api_base_url}/products")
+    assert response.status_code == 200
+    assert len(response.json()) >= 1
+    assert response.json()[0]["name"] == "New Product"
+    
 def test_unregister_user(api_base_url, test_login_success):
     headers = {"Authorization": f"Bearer {test_login_success}"}
     response = requests.delete(f"{api_base_url}/unregister", headers=headers)
     assert response.status_code == 200
     assert response.text == "User deleted successfully."
-
-
-    
-
-
-
