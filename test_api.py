@@ -9,6 +9,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 )
 
+logger = logging.getLogger("pytest-logger")
+
 # Change ip adress here based on Minikube setup.
 USERNAME = "testuser7"
 TOKEN = ""
