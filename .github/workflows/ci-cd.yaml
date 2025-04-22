@@ -59,4 +59,4 @@ jobs:
       - name: Run Python tests
         run: |
           source venv/bin/activate
-          python run_tests.py
+          python run_tests.py --log-cli-level=INFO
