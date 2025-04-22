@@ -46,5 +46,5 @@ if __name__ == "__main__":
     print ("Running tests...")
     with open("test_api.py", "r") as f:
         content = f.read()
-    exit_code = pytest.main(["test_api.py", "-v"])
-    sys.exit(exit_code)
+    ##exit_code = pytest.main(["test_api.py", "-v"])
+    sys.exit(pytest.main(sys.argv[1:]))
