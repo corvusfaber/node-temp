@@ -30,6 +30,16 @@ def api_base_url():
     wait_for_service(BASE_URL)
     return BASE_URL
 
+
+@pytest.fixture()
+def test_login_success(api_base_url):
+    payload = {"username": USERNAME, "password": "testpassword"}
+    response = requests.post(f"{api_base_url}/login", json=payload)
+    assert response.status_code == 200, f"Login failed: {response.text}"
+    data = response.json()
+    assert "token" in data, "No token returned in response"
+    return data["token"]
+
 def test_register_success(api_base_url):
     payload = {"username": USERNAME, "password": "testpassword", "isAdmin": True}
     response = requests.post(f"{api_base_url}/register", json=payload) #wait
@@ -41,15 +51,6 @@ def test_register_duplicate(api_base_url):
     response = requests.post(f"{api_base_url}/register", json=payload)
     assert response.status_code == 409
     assert response.text == "Username already exists"
-
-@pytest.fixture()
-def test_login_success(api_base_url):
-    payload = {"username": USERNAME, "password": "testpassword"}
-    response = requests.post(f"{api_base_url}/login", json=payload)
-    assert response.status_code == 200, f"Login failed: {response.text}"
-    data = response.json()
-    assert "token" in data, "No token returned in response"
-    return data["token"]
     
 def test_login_invalid_password(api_base_url):
     payload = {"username": USERNAME, "password": "wrongpassword"}
@@ -63,7 +64,8 @@ def test_login_nonexistent_user(api_base_url):
     assert response.status_code == 401
     assert response.text == "Invalid username or password"
 
-def test_add_product_success(api_base_url, test_login_success):
+@pytest.fixture()
+def test_add_product(api_base_url, test_login_success):
     product = {
         "name": "New Product",
         "description": "A new product",
@@ -76,11 +78,25 @@ def test_add_product_success(api_base_url, test_login_success):
     assert response.status_code == 201
     assert response.text == "Product added"
 
+@pytest.fixture()
 def test_get_products_success(api_base_url, test_login_success):
     response = requests.get(f"{api_base_url}/products")
     assert response.status_code == 200
     assert len(response.json()) >= 1
     assert response.json()[0]["name"] == "New Product"
+    return response.json()[0]
+    
+# Tests for POST /cart
+def test_add_to_cart_success(api_base_url, test_login_success, test_get_products_success):
+    payload = {"product_id": test_get_products_success["id"], "quantity": 2}
+    headers = {"Authorization": f"Bearer {test_login_success}"}
+    response = requests.post(f"{api_base_url}/cart", json=payload, headers=headers)
+    assert response.status_code == 201
+    assert response.text == "Item added to cart"
+    # Verify cart contents
+    response = requests.get(f"{api_base_url}/cart", headers=headers)
+    assert len(response.json()) == 1
+    assert response.json()[0]["quantity"] == 2
     
 def test_unregister_user(api_base_url, test_login_success):
     headers = {"Authorization": f"Bearer {test_login_success}"}
