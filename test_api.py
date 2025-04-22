@@ -2,6 +2,9 @@ import pytest
 import requests
 import time
 import subprocess
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Change ip adress here based on Minikube setup.
 USERNAME = "testuser7"
@@ -84,6 +87,8 @@ def test_get_products_success(api_base_url, test_login_success):
     assert response.status_code == 200
     assert len(response.json()) >= 1
     assert response.json()[0]["name"] == "New Product"
+    logger.info(response.json()[0])
+    logger.debug(response.json()[0])
     return response.json()[0]
     
 # Tests for POST /cart
