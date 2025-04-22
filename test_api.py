@@ -86,13 +86,12 @@ def test_add_product(api_base_url, test_login_success):
     assert response.status_code == 201
     assert response.text == "Product added"
 
-@pytest.fixture()
 def test_get_products_success(api_base_url, test_login_success):
     response = requests.get(f"{api_base_url}/products")
-    # assert response.status_code == 200
-    # assert len(response.json()) >= 1
-    # assert response.json()[0]["name"] == "New Product"
-    products = response.json()[0]
+    assert response.status_code == 200
+    assert len(response.json()) >= 1
+    assert response.json()[0]["name"] == "New Product"
+    products = response.json()
     logger.info(products)
     return products
     
