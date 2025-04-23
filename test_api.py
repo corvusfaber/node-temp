@@ -97,6 +97,7 @@ def test_add_to_cart_success(api_base_url, test_login_success, test_get_products
     assert response.json()[0]["quantity"] == 2
     
 def test_unregister_user(api_base_url, test_login_success):
+    time.sleep(5)
     headers = {"Authorization": f"Bearer {test_login_success}"}
     response = requests.delete(f"{api_base_url}/unregister", headers=headers)
     assert response.status_code == 200
