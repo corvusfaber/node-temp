@@ -76,12 +76,25 @@ def test_add_product_success(api_base_url, test_login_success):
     assert response.status_code == 201
     assert response.text == "Product added"
 
+@pytest.fixture()
 def test_get_products_success(api_base_url, test_login_success):
     response = requests.get(f"{api_base_url}/products")
     assert response.status_code == 200
     assert len(response.json()) >= 1
     assert response.json()[0]["name"] == "New Product"#
     return response.json()
+    
+##Tests for POST /cart
+def test_add_to_cart_success(api_base_url, test_login_success, test_get_products_success):
+    payload = {"product_id": test_get_products_success[0]["id"], "quantity": 2}
+    headers = {"Authorization": f"Bearer {test_login_success}"}
+    response = requests.post(f"{api_base_url}/cart", json=payload, headers=headers)
+    assert response.status_code == 201
+    assert response.text == "Item added to cart"
+    # Verify cart contents
+    response = requests.get(f"{api_base_url}/cart", headers=headers)
+    assert len(response.json()) == 1
+    assert response.json()[0]["quantity"] == 2
     
 def test_unregister_user(api_base_url, test_login_success):
     headers = {"Authorization": f"Bearer {test_login_success}"}
