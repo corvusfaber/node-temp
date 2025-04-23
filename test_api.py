@@ -67,7 +67,7 @@ def test_add_product_success(api_base_url, test_login_success):
     product = {
         "name": "New Product",
         "description": "A new product",
-        "price": 29.99,
+        "price": 30.99,
         "stock": 50,
         "image_url": "http://example.com/new.jpg"
     }
