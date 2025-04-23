@@ -119,7 +119,7 @@ function authenticateToken(req, res, next){
 
 const rateLimiter = rateLimit({
     windows: 5 * 60 * 1000, // 15 minutes
-    max: 10, // Limit to 5 attempts per window
+    max: 20, // Limit to 5 attempts per window
     message: 'Too many attempts. Try again later.',
     headers: true // Include rate limit info in the response headers
 })
