@@ -91,9 +91,6 @@ def test_get_products_success(api_base_url, test_login_success):
     assert response.status_code == 200
     assert len(response.json()) >= 1
     assert response.json()[0]["name"] == "New Product"
-    products = response.json()
-    logger.info(products)
-    return products
     
 # Tests for POST /cart
 # def test_add_to_cart_success(api_base_url, test_login_success, test_get_products_success):
