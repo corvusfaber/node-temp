@@ -89,7 +89,7 @@ def test_get_cart_with_items(api_base_url, test_login_success, test_get_products
     # Add an item to the cart
     auth_token = test_login_success
     test_product = test_get_products_success
-    payload = {"product_id": test_product[0]["id"], "quantity": 1}
+    payload = {"product_id": test_product[0]["id"], "quantity": 2}
     headers = {"Authorization": f"Bearer {auth_token}"}
     response = requests.post(f"{api_base_url}/cart", json=payload, headers=headers)
     assert response.status_code == 201, f"Failed to add item to cart: {response.text}"
@@ -98,10 +98,10 @@ def test_get_cart_with_items(api_base_url, test_login_success, test_get_products
     response = requests.get(f"{api_base_url}/cart", headers=headers)
     assert response.status_code == 200, f"Failed to fetch cart: {response.text}"
     assert len(response.json()) == 1, "Expected exactly one item in cart"
-    assert response.json()[0]["product_id"] == test_product["id"], "Product ID mismatch"
+    assert response.json()[0]["product_id"] == test_product[0]["id"], "Product ID mismatch"
     assert response.json()[0]["quantity"] == 2, "Quantity mismatch"
-    assert response.json()[0]["name"] == test_product["name"], "Product name mismatch"
-    assert response.json()[0]["price"] == test_product["price"], "Product price mismatch"
+    assert response.json()[0]["name"] == test_product[0]["name"], "Product name mismatch"
+    assert response.json()[0]["price"] == test_product[0]["price"], "Product price mismatch"
     
 def test_unregister_user(api_base_url, test_login_success):
     headers = {"Authorization": f"Bearer {test_login_success}"}
