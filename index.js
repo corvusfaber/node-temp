@@ -119,7 +119,7 @@ function authenticateToken(req, res, next){
 
 const rateLimiter = rateLimit({
     windows: 5 * 60 * 1000, // 15 minutes
-    max: 10, // Limit to 5 attempts per window
+    max: 20, // Limit to 5 attempts per window
     message: 'Too many attempts. Try again later.',
     headers: true // Include rate limit info in the response headers
 })
@@ -266,6 +266,57 @@ app.post('/products', productRateLimiter, authenticateToken, isAdmin, async (req
     } catch (error) {
         console.error('Error adding product:', error);
         res.status(500).send('Error adding product');
+    }
+});
+
+// Get user's cart
+app.get('/cart', authenticateToken, rateLimiter, async (req, res) => {
+    try {
+        const connection = await mysql.createConnection({
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DATABASE
+        });
+        const [rows] = await connection.execute(
+            'SELECT c.id, c.product_id, c.quantity, p.name, p.price FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?',
+            [req.user.id]
+        );
+        await connection.end();
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching cart:', error);
+        res.status(500).send('Error fetching cart');
+    }
+});
+
+// Add item to cart
+app.post('/cart', authenticateToken, rateLimiter, async (req, res) => {
+    const { product_id, quantity } = req.body;
+    if (!product_id || !quantity || quantity <= 0) {
+        return res.status(400).send('Product ID and valid quantity are required');
+    }
+    try {
+        const connection = await mysql.createConnection({
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DATABASE
+        });
+        const [products] = await connection.execute('SELECT stock FROM products WHERE id = ?', [product_id]);
+        if (products.length === 0 || products[0].stock < quantity) {
+            await connection.end();
+            return res.status(400).send('Product not found or insufficient stock');
+        }
+        await connection.execute(
+            'INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + ?',
+            [req.user.id, product_id, quantity, quantity]
+        );
+        await connection.end();
+        res.status(201).send('Item added to cart');
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        res.status(500).send('Error adding to cart');
     }
 });
 
