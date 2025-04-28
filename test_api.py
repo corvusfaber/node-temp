@@ -12,7 +12,7 @@ def get_service_url():
     port = subprocess.check_output(["kubectl", "get", "svc", "mf-node-app-service", "-o", "jsonpath={.spec.ports[0].nodePort}"]).decode().strip()
     return f"http://{ip}:{port}"
 
-BASE_URL = get_service_url() #"http://192.168.58.2:30007" # Default for local testing
+BASE_URL = get_service_url() 
 # Wait for the service to be ready.
 def wait_for_service(url, timeout=30):
     start_time = time.time()
