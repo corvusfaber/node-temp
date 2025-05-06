@@ -1,4 +1,5 @@
 const express = require('express');
+const client = require('prom-client');
 const rateLimit = require('express-rate-limit');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
@@ -6,11 +7,20 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 app.use(express.json());
+const register = new client.Registry();
+
+// Collect metric (CPU, memory, etc.)
+client.collectDefaultMetrics({ register });
+// Expose /metrics endpoint
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  });
 
 // Rate limiter for product-related routes
 const productRateLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    windows: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windows
 });
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -105,12 +115,12 @@ function authenticateToken(req, res, next){
         return res.status(403).send('No token provided.')
     }
 
-    token = authHeader.split(" ")[1]
+    const token = authHeader.split(" ")[1];
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
         if(err){
             console.log('❌ Invalid token:', err);
-            return res,status(403).send('Invalid or expired token');
+            return res.status(403).send('Invalid or expired token');
         }
         req.user = user; // Contains { id, username, isAdmin }
         next();
