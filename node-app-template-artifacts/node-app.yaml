@@ -79,7 +79,7 @@ kind: Service
 metadata:
   name: mf-node-app-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector: 
     app: mf-node-app
   ports:
