@@ -3,3 +3,8 @@ npm-debug.log
 Dockerfile
 .dockerignore
 .git
+.vscode
+.github
+.pytest_cache
+.env
+.env.*
