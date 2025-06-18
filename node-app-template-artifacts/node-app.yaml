@@ -20,6 +20,24 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
+        # Liveness Probe
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+        # Readiness Probe
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 3
         resources:
           requests:
             cpu: "100m"
@@ -61,7 +79,7 @@ kind: Service
 metadata:
   name: mf-node-app-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector: 
     app: mf-node-app
   ports:

@@ -5,9 +5,29 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const app = express();
+let isReady = false;
+
+// For kube readiness probe
+app.get('/ready', async (req, res) => {
+     if (isReady) {
+    res.send('READY');
+  } else {
+    res.status(503).send('NOT READY');
+  }
+  });
+
+// Simulate startup delay
+setTimeout(() => {
+  isReady = true;
+}, 10000);
 
 app.use(express.json());
 const register = new client.Registry();
+
+// For kube health check
+app.get('/health', async (req, res) => {
+    res.send('OK');
+  });
 
 // Collect metric (CPU, memory, etc.)
 client.collectDefaultMetrics({ register });
