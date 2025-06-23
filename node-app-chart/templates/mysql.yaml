@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.mysql.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.mysql.name }} 
+  serviceName: {{ .Values.mysql.serviceNmae }}
+  replicas:  {{ .Values.mysql.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.mysql.name }} 
+    spec:
+      containers:
+      - name: {{ .Values.mysql.name }}
+        image: "{{ .Values.mysql.image }}"
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.mysql.secretName }}
+              key: mysql-root-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.mysql.secretName }}
+              key: mysql-database
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.mysql.secretName }}
+              key: mysql-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.mysql.secretName }}
+              key: mysql-password
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.mysql.storage }}
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: {{ .Values.mysql.serviceName }}
+  labels:
+    app: {{ .Values.mysql.name }}
+spec:
+  selector:
+    app: {{ .Values.mysql.name }}
+  ports:
+  - port: 3306
+    targetPort: 3306

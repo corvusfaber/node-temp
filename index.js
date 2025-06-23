@@ -9,12 +9,12 @@ let isReady = false;
 
 // For kube readiness probe
 app.get('/ready', async (req, res) => {
-     if (isReady) {
+  if (isReady) {
     res.send('READY');
   } else {
     res.status(503).send('NOT READY');
   }
-  });
+});
 
 // Simulate startup delay
 setTimeout(() => {
@@ -26,133 +26,132 @@ const register = new client.Registry();
 
 // For kube health check
 app.get('/health', async (req, res) => {
-    res.send('OK');
-  });
+  res.send('OK');
+});
 
 // Collect metric (CPU, memory, etc.)
 client.collectDefaultMetrics({ register });
 // Expose /metrics endpoint
 app.get('/metrics', async (req, res) => {
-    res.set('Content-Type', register.contentType);
-    res.end(await register.metrics());
-  });
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 
 // Rate limiter for product-related routes
 const productRateLimiter = rateLimit({
-    windows: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windows
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET){
-    console.error("Missing token in environment variable")
-    process.exit(1)
+if (!JWT_SECRET) {
+  console.error("Missing token in environment variable");
+  process.exit(1);
 }
 
-async function initializeDatabase (){
-   try{
-    const connection = await mysql.createConnection({
+// Retry MySQL connection with retries
+async function connectWithRetry(retries = 5, delay = 5000) {
+  let attempt = 0;
+  while (attempt < retries) {
+    try {
+      console.log(`⏳ Attempt ${attempt + 1} to connect to MySQL`);
+      const connection = await mysql.createConnection({
         host: process.env.MYSQL_HOST,
         user: process.env.MYSQL_USER,
         password: process.env.MYSQL_PASSWORD,
         database: process.env.MYSQL_DATABASE,
         connectTimeout: 10000
-    });
-    // Users table
-    await connection.execute(
-        `CREATE TABLE IF NOT EXISTS users (
+      });
+
+      console.log('✅ Connected to MySQL successfully.');
+
+      // Users table
+      await connection.execute(`CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
         isAdmin BOOLEAN DEFAULT FALSE
-        )`
-    );
+      )`);
 
-    // Products table
-    await connection.execute(
-        `CREATE TABLE IF NOT EXISTS products (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            description TEXT,
-            price DECIMAL(10, 2) NOT NULL,
-            stock INT NOT NULL,
-            image_url VARCHAR(255)
-        )`
-    );
+      // Products table
+      await connection.execute(`CREATE TABLE IF NOT EXISTS products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        price DECIMAL(10, 2) NOT NULL,
+        stock INT NOT NULL,
+        image_url VARCHAR(255)
+      )`);
 
-    // Cart table
-    await connection.execute(
-        `CREATE TABLE IF NOT EXISTS cart (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT NOT NULL,
-            product_id INT NOT NULL,
-            quantity INT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-        )`
-    );
+      // Cart table
+      await connection.execute(`CREATE TABLE IF NOT EXISTS cart (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        product_id INT NOT NULL,
+        quantity INT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+      )`);
 
-    // Orders table
-    await connection.execute(
-        `CREATE TABLE IF NOT EXISTS orders (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT NOT NULL,
-            total DECIMAL(10, 2) NOT NULL,
-            status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )`
-    );
+      // Orders table
+      await connection.execute(`CREATE TABLE IF NOT EXISTS orders (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        total DECIMAL(10, 2) NOT NULL,
+        status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )`);
 
-    // Order items table
-    await connection.execute(
-        `CREATE TABLE IF NOT EXISTS order_items (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            order_id INT NOT NULL,
-            product_id INT NOT NULL,
-            quantity INT NOT NULL,
-            price_at_purchase DECIMAL(10, 2) NOT NULL,
-            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-        )`
-    );
+      // Order items table
+      await connection.execute(`CREATE TABLE IF NOT EXISTS order_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        order_id INT NOT NULL,
+        product_id INT NOT NULL,
+        quantity INT NOT NULL,
+        price_at_purchase DECIMAL(10, 2) NOT NULL,
+        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+      )`);
 
-    await connection.end();
-    console.log('Database initialized')
-}catch (error){
-    console.error("Database connection error:", error);
-}
-}
-
-initializeDatabase().catch(console.error);
-
-function authenticateToken(req, res, next){
-    console.log('🔍 Checking Authorization Header:', req.headers.authorization);
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")){
-        console.log('❌ No token provided');
-        return res.status(403).send('No token provided.')
+      await connection.end();
+      console.log('✅ Database initialized v1.');
+      return;
+    } catch (error) {
+      console.error(`❌ Connection failed: ${error.message}`);
+      attempt++;
+      if (attempt < retries) {
+        console.log(`🔁 Retrying in ${delay / 1000}s...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.error('❌ All retries exhausted. Exiting...');
+        process.exit(1);
+      }
     }
+  }
+}
 
-    const token = authHeader.split(" ")[1];
+connectWithRetry();
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if(err){
-            console.log('❌ Invalid token:', err);
-            return res.status(403).send('Invalid or expired token');
-        }
-        req.user = user; // Contains { id, username, isAdmin }
-        next();
-    })
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(403).send('No token provided.');
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).send('Invalid or expired token');
+    req.user = user;
+    next();
+  });
 }
 
 const rateLimiter = rateLimit({
-    windows: 5 * 60 * 1000, // 15 minutes
-    max: 20, // Limit to 5 attempts per window
-    message: 'Too many attempts. Try again later.',
-    headers: true // Include rate limit info in the response headers
-})
+  windowMs: 5 * 60 * 1000,
+  max: 20,
+  message: 'Too many attempts. Try again later.',
+  headers: true
+});
 
 // Endpoints
 app.delete("/unregister", rateLimiter, authenticateToken, async(req, res) => {
@@ -184,6 +183,7 @@ app.delete("/unregister", rateLimiter, authenticateToken, async(req, res) => {
 })
 
 app.post('/register', rateLimiter, async(req, res) => {
+    console.log('Adding new user.');
     let { username , password, isAdmin } = req.body;
     if (!username || !password){
         return res.status(400).send('Username and Password are required');
@@ -351,5 +351,5 @@ app.post('/cart', authenticateToken, rateLimiter, async (req, res) => {
 });
 
 app.listen(3000, '0.0.0.0', () => {
-    console.log('Server running on port 3000.')
-})
+  console.log('🚀 Server running on port 3000.');
+});

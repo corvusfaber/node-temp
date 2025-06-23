@@ -1,0 +1,42 @@
+image:
+  repository: malcolmcfraser/mf-node-app-template
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 3000
+
+serviceAccount:
+  create: true
+  name: ""
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+mysql:
+  name: mysql
+  serviceName: mysql-service
+  image: mysql:5.7
+  replicas: 1
+  secretName: mysql-secret
+  storage: 1Gi
+
+jwt:
+  secret: jwt-secret

@@ -15,9 +15,9 @@ spec:
         app: mf-node-app
     spec:
       containers:
-      - name: mf-node-app
-        image: malcolmcfraser/mf-node-app-template:latest
-        imagePullPolicy: Always
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 3000
         # Liveness Probe

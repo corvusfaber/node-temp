@@ -7,14 +7,17 @@ import sys
 def deploy_app():
     subprocess.run(["minikube", "start", "--driver=docker", "--preload=false"], check=True)
     subprocess.run(["minikube", "ip"], check=True)
-    subprocess.run(["docker", "build", "-t", "malcolmcfraser/mf-node-app-template:latest", "."], check=True)
-    subprocess.run(["docker", "push","malcolmcfraser/mf-node-app-template:latest"], check=True)
-    subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/mysql-statefulset.yaml"], check=True) # path to statefulset
-    time.sleep(10) # Wait for mysql stateful set and services before deploying the app.
-    subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app.yaml"], check=True)# path to node-deployment-template
-    subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app-ingress.yaml"], check=True)
-    subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app-hpa.yaml"], check=True)
-    subprocess.run(["kubectl", "wait", "--for=condition=available", "--timeout=120s", "deployment/mf-node-app"], check=True)
+    
+    subprocess.run(["docker", "build", "-t", "malcolmcfraser/mf-node-app-template:latest", "." ], check=True)
+    subprocess.run(["docker", "push", "malcolmcfraser/mf-node-app-template:latest"], check=True)
+    
+    subprocess.run([
+        "helm", "upgrade", "--install", "node-app", "./node-app-chart",
+        "--set", "image.repository=malcolmcfraser/mf-node-app-template",
+        "--set","image.tag=latest"
+    ], check=True)
+    
+    subprocess.run(["kubectl","rollout", "status", "deployment/mf-node-app", "--timeout=120s"], check=True)
     
     # Wait for the pods to be ready
     for _ in range(30):
