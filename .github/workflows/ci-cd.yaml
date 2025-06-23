@@ -15,12 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Upload pod logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: pod-logs
-          path: pod-logs.txt
-
       - name: Set up Minikube
         uses: medyagh/setup-minikube@latest
         with:
@@ -69,7 +63,15 @@ jobs:
 
       - name: Get logs from mf-node-app pods
         run: |
-          echo "Getting logs for mf-node-app..."
-          POD_NAME=$(kubectl get pods --selector=app=mf-node-app -o jsonpath="{.items[0].metadata.name}")
-          echo "Found pod: $POD_NAME"
-          kubectl logs $POD_NAME --timestamps | tee pod-logs.txt
+          echo "Getting logs for all mf-node-app..."
+          kubectl get pods -l app=mf-node-app -o name | while read pod; do
+            echo "🔍 Fetching logs for $pod"
+            kubectl logs "$pod" --timestamps >> pod-logs.txt
+            echo "------------------------------------------------------------------------------" >> pod-logs.txt
+          done
+      
+      - name: Upload pod logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: pod-logs
+          path: pod-logs.txt
