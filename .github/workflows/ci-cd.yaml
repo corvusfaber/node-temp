@@ -63,16 +63,15 @@ jobs:
 
       - name: Get logs from mf-node-app pods
         run: |
-          echo "Getting logs for all mf-node-app..."
-          kubectl get pods -l app=mf-node-app -o name | while read pod; do
-            echo "🔍 Fetching logs for $pod"
-            kubectl logs "$pod" --timestamps >> pod-logs.txt
-            echo "------------------------------------------------------------------------------" >> pod-logs.txt
+          echo "Getting logs for mf-node-app..."
+          mkdir -p logs
+          for POD in $(kubectl get pods -l app=mf-node-app -o jsonpath="{.items[*].metadata.name}"); do
+            echo "⏳ Gathering logs for $POD..."
+            kubectl logs "$POD" --timestamps > logs/${POD}.log
           done
-          cat pod-logs.txt
-      
+
       - name: Upload pod logs
         uses: actions/upload-artifact@v4
         with:
           name: pod-logs
-          path: pod-logs.txt
+          path: logs/
