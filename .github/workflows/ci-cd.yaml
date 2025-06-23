@@ -15,6 +15,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Upload pod logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: pod-logs
+          path: pod-logs.txt
+
       - name: Set up Minikube
         uses: medyagh/setup-minikube@latest
         with:
