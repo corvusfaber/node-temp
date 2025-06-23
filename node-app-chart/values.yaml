@@ -1,0 +1,10 @@
+applicationName: mf-node-app
+replicaCount: 3
+dockerImage: malcolmcfraser/mf-node-app-template:latest
+imagePullPolicy: Always
+containerPort: 3000
+livenessProbePath: /health
+readinessProbePath: /ready
+
+service:
+  port: 3000
