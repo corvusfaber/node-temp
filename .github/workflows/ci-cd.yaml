@@ -61,26 +61,36 @@ jobs:
           source venv/bin/activate
           python run_tests.py
 
-      - name: Get logs from mf-node-app pods
+      - name: Get logs from all pods
+        if: always()
         run: |
           mkdir -p $GITHUB_WORKSPACE/logs
-          for pod in $(kubectl get pods -l app=mf-node-app -o jsonpath="{.items[*].metadata.name}"); do
-            echo "📄 Getting logs from $pod..."
+          echo "🕵️ Checking pods..."
+          kubectl get pods -A
+
+          echo "🔍 Fetching logs..."
+          pods=$(kubectl get pods -o jsonpath="{.items[*].metadata.name}")
+          if [ -z "$pods" ]; then
+            echo "❌ No pods found."
+          fi
+
+          for pod in $pods; do
             containers=$(kubectl get pod "$pod" -o jsonpath="{.spec.containers[*].name}")
             for container in $containers; do
               log_file="$GITHUB_WORKSPACE/logs/${pod}-${container}.log"
-              echo "📦 Logs from pod: $pod (container: $container)" | tee "$log_file"
+              echo "📄 Logs from $pod (container: $container)" | tee "$log_file"
               if ! kubectl logs "$pod" -c "$container" --timestamps >> "$log_file" 2>&1; then
-                echo "⚠️ Failed to get current logs. Trying --previous..." >> "$log_file"
-                kubectl logs "$pod" -c "$container" --previous --timestamps >> "$log_file" 2>&1 || echo "❌ No logs available at all." >> "$log_file"
+                echo "⚠️ Could not get current logs for $pod/$container. Trying --previous..." >> "$log_file"
+                kubectl logs "$pod" -c "$container" --previous --timestamps >> "$log_file" 2>&1 || echo "❌ No logs at all." >> "$log_file"
               fi
-              echo -e "\n" >> "$log_file"
+              echo -e "\n---\n" >> "$log_file"
             done
           done
 
-      - name: Upload pod logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pod-logs
-          path: logs/
+          echo "📁 Contents of logs directory:"
+          ls -l $GITHUB_WORKSPACE/logs
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                name: pod-logs
+                path: logs/
