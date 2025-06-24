@@ -63,13 +63,12 @@ jobs:
 
       - name: Get logs from mf-node-app pods
         run: |
-          echo "Getting logs for mf-node-app..."
-          mkdir -p logs
-          for POD in $(kubectl get pods -l app=mf-node-app -o jsonpath="{.items[*].metadata.name}"); do
-            echo "⏳ Gathering logs for $POD..."
-            kubectl logs "$POD" --timestamps > logs/pod-logs.txt
+          mkdir -p $GITHUB_WORKSPACE/logs
+          for pod in $(kubectl get pods --no-headers -o custom-columns=":metadata.name"); do
+            echo "📄 Logs from $pod:" | tee $GITHUB_WORKSPACE/logs/$pod.log
+            kubectl logs $pod | tee -a $GITHUB_WORKSPACE/logs/$pod.log
           done
-
+          
       - name: Upload pod logs
         if: always()
         uses: actions/upload-artifact@v4
