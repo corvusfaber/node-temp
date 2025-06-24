@@ -89,3 +89,10 @@ jobs:
 
           echo "📁 Contents of logs directory:"
           ls -l $GITHUB_WORKSPACE/logs
+
+      - name: Upload pod logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pod-logs
+          path: logs/
