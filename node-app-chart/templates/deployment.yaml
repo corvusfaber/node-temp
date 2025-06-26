@@ -14,6 +14,25 @@ spec:
       labels:
         app: {{ .Values.applicationName }}
     spec:
+       template:
+    metadata:
+      labels:
+        app: {{ .Values.applicationName }}
+    spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox
+        command:
+          - sh
+          - -c
+          - >
+            echo "Waiting for mysql-service:3306...";
+            until nc -z mysql-service 3306;
+            do
+              echo "MySQL not ready, waiting...";
+              sleep 2;
+            done;
+            echo "MySQL is ready!";
       containers:
       - name: {{ .Values.applicationName }}
         image: {{ .Values.dockerImage }}
