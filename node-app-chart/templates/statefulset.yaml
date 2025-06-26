@@ -1,42 +1,42 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mysql
+  name: {{ .Values.statefulset.name }}
 spec:
   selector:
     matchLabels:
       app: mysql 
   serviceName: mysql-service
-  replicas: 1
+  replicas: {{ .Values.statefulset.replicas }}
   template:
     metadata:
       labels:
-        app: mysql 
+        app: {{ .Values.statefulset.name }}
     spec:
       containers:
       - name: mysql
-        image: mysql:5.7
+        image: {{ .Values.statefulset.image }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: mysql-root-password
+              name: {{ .Values.statefulset.secrets.mysql.name }}
+              key: {{ .Values.statefulset.secrets.mysql.rootPasswordKey }}
         - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: mysql-database
+              name: {{ .Values.statefulset.secrets.mysql.name }}
+              key: {{ .Values.statefulset.secrets.mysql.databaseKey }}
         - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: mysql-user
+              name: {{ .Values.statefulset.secrets.mysql.name }}
+              key: {{ .Values.statefulset.secrets.mysql.userKey }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: mysql-password
+              name: {{ .Values.statefulset.secrets.mysql.name }}
+              key: {{ .Values.statefulset.secrets.mysql.passwordKey }}
         ports:
         - containerPort: 3306
         volumeMounts:

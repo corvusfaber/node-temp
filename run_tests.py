@@ -20,7 +20,7 @@ def deploy_app():
         "helm", "upgrade", "--install", "node-app-chart", "./node-app-chart"
     ], check=True)
     
-        # Wait for deployment to be ready
+    # Wait for deployment to be ready
     subprocess.run(["kubectl", "rollout", "status", "deployment/mf-node-app", "--timeout=120s"], check=True)
 
     # Optional: wait for ingress (if you're using it)
