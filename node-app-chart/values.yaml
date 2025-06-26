@@ -6,6 +6,9 @@ deployment:
   containerPort: 3000
   livenessProbePath: /health
   readinessProbePath: /ready
+  mysqlWaitImage: busybox
+  mysqlHost: mysql-service
+  mysqlPort: 3306
 
 service:
   port: 3000
