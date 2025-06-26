@@ -70,25 +70,25 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
+              name: {{ .Values.deployment.secrets.mysql.name }}
               key: {{ .Values.deployment.secrets.mysql.rootPasswordKey }}
         - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: mysql-database
+              name: {{ .Values.deployment.secrets.mysql.name }}
+              key: {{ .Values.deployment.secrets.mysql.databaseKey }}
         - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: mysql-user
+              name: {{ .Values.deployment.secrets.mysql.name }}
+              key: {{ .Values.deployment.secrets.mysql.userKey }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: mysql-password
+              name: {{ .Values.deployment.secrets.mysql.name }}
+              key: {{ .Values.deployment.secrets.mysql.passwordKey }}
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: jwt-secret
-              key: JWT_SECRET
+              name: {{ .Values.deployment.secrets.jwt.name }}
+              key: {{ .Values.deployment.secrets.jwt.key }}
