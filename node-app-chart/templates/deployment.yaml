@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.applicationName }}
+  name: {{ .Values.deployment.applicationName }}
   labels:
     app: nginx
 spec:
-  replicas: {{ .Values.replicaCount }} 
+  replicas: {{ .Values.deployment.replicaCount }} 
   selector:
     matchLabels:
-      app: {{ .Values.applicationName }}
+      app: {{ .Values.deployment.applicationName }}
   template:
     metadata:
       labels:
@@ -17,7 +17,7 @@ spec:
        template:
     metadata:
       labels:
-        app: {{ .Values.applicationName }}
+        app: {{ .Values.deployment.applicationName }}
     spec:
       initContainers:
       - name: wait-for-mysql
@@ -34,16 +34,16 @@ spec:
             done;
             echo "MySQL is ready!";
       containers:
-      - name: {{ .Values.applicationName }}
-        image: {{ .Values.dockerImage }}
+      - name: {{ .Values.deployment.applicationName }}
+        image: {{ .Values.deployment.dockerImage }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         ports:
-        - containerPort:  {{ .Values.containerPort}}
+        - containerPort:  {{ .Values.deployment.containerPort}}
         # Liveness Probe
         livenessProbe:
           httpGet:
-            path:  {{ .Values.livenessProbePath}}
-            port:  {{ .Values.containerPort}}
+            path:  {{ .Values.deployment.livenessProbePath}}
+            port:  {{ .Values.deployment.containerPort}}
           initialDelaySeconds: 10
           periodSeconds: 10
           timeoutSeconds: 2
@@ -51,8 +51,8 @@ spec:
         # Readiness Probe
         readinessProbe:
           httpGet:
-            path:  {{ .Values.livenessProbePath}}
-            port:  {{ .Values.containerPort}}
+            path:  {{ .Values.deployment.livenessProbePath}}
+            port:  {{ .Values.deployment.containerPort}}
           initialDelaySeconds: 5
           periodSeconds: 5
           timeoutSeconds: 2
