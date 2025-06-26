@@ -9,6 +9,16 @@ deployment:
   mysqlWaitImage: busybox
   mysqlHost: mysql-service
   mysqlPort: 3306
+  secrets:
+    mysql:
+      name: mysql-secret
+      rootPasswordKey: mysql-root-password
+      userKey: mysql-user
+      passwordKey: mysql-password
+      databaseKey: mysql-database
+    jwt:
+      name: jwt-secret
+      key: JWT_SECRET
 
 service:
   port: 3000
