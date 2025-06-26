@@ -48,7 +48,7 @@ def wait_for_service(url):
             requests.get(url + "/register", timeout=10)
             return
         except requests.ConnectionError:
-            time.sleep(10)
+            time.sleep(30)
     raise Exception("Service not ready")
 
 if __name__ == "__main__":
