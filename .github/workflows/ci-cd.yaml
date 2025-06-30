@@ -1,54 +1,98 @@
-name: Build, Test, and Deploy Docker Image to AWS
+name: Python Test with Minikube
 
-on:
-  push:
-    branches: [main]
-
-env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-  IMAGE_TAG: ${{ github.sha }}
-
+on: [push, pull_request]
+    
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
+    env:
+      MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+      MYSQL_USER: ${{ secrets.MYSQL_USER }}
+      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Set up Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          driver: docker
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+      - name: Verify minikube is running
+        run: minikube status
 
-    - name: Build Docker image
-      run: |
-        docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+      - name: Apply Kubernetes Secret
+        run: |
+          echo "Creating Kubernetes secret..."
+          kubectl create secret generic jwt-secret \
+            --from-literal=JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            --dry-run=client -o yaml | kubectl apply -f -
 
-    - name: Run tests
-      run: |
-        docker run --rm $ECR_REPOSITORY:$IMAGE_TAG npm test
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libdbus-1-dev
 
-    - name: Tag and push Docker image to ECR
-      run: |
-        IMAGE_URI=$(aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_REGION --query "repositories[0].repositoryUri" --output text)
-        docker tag $ECR_REPOSITORY:$IMAGE_TAG $IMAGE_URI:$IMAGE_TAG
-        docker push $IMAGE_URI:$IMAGE_TAG
-      env:
-        IMAGE_TAG: ${{ github.sha }}
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsystemd-dev
 
-    - name: Deploy to ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ secrets.ECS_TASK_DEFINITION }}
-        service: ${{ secrets.ECS_SERVICE }}
-        cluster: ${{ secrets.ECS_CLUSTER }}
-        image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
-        wait-for-service-stability: true
+      - name: Create Kubernetes Secret for MySQL
+        run: |
+          kubectl create secret generic mysql-secret \
+            --from-literal=mysql-root-password=rootpassword \
+            --from-literal=mysql-database=mydatabase \
+            --from-literal=mysql-user=myuser \
+            --from-literal=mysql-password=mypassword
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Install Python dependancies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Run Python tests
+        run: |
+          source venv/bin/activate
+          python run_tests.py
+
+      - name: Get logs from all pods
+        if: always()
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/logs
+          echo "🕵️ Checking pods..."
+          kubectl get pods -A
+
+          echo "🔍 Fetching logs..."
+          pods=$(kubectl get pods -o jsonpath="{.items[*].metadata.name}")
+          if [ -z "$pods" ]; then
+            echo "❌ No pods found."
+          fi
+
+          for pod in $pods; do
+            containers=$(kubectl get pod "$pod" -o jsonpath="{.spec.containers[*].name}")
+            for container in $containers; do
+              log_file="$GITHUB_WORKSPACE/logs/${pod}-${container}.log"
+              echo "📄 Logs from $pod (container: $container)" | tee "$log_file"
+              if ! kubectl logs "$pod" -c "$container" --timestamps >> "$log_file" 2>&1; then
+                echo "⚠️ Could not get current logs for $pod/$container. Trying --previous..." >> "$log_file"
+                kubectl logs "$pod" -c "$container" --previous --timestamps >> "$log_file" 2>&1 || echo "❌ No logs at all." >> "$log_file"
+              fi
+              echo -e "\n---\n" >> "$log_file"
+            done
+          done
+
+          echo "📁 Contents of logs directory:"
+          ls -l $GITHUB_WORKSPACE/logs
+
+      - name: Upload pod logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pod-logs
+          path: logs/
