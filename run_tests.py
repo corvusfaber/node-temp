@@ -3,18 +3,30 @@ import time
 import pytest
 import requests
 import sys
-# # minikube start  
+
 def deploy_app():
+    # Start minikube.
     subprocess.run(["minikube", "start", "--driver=docker", "--preload=false"], check=True)
+    
+    # Get Minikube Ip.
     subprocess.run(["minikube", "ip"], check=True)
+    
+    # Build and push Docker image
     subprocess.run(["docker", "build", "-t", "malcolmcfraser/mf-node-app-template:latest", "."], check=True)
     subprocess.run(["docker", "push","malcolmcfraser/mf-node-app-template:latest"], check=True)
-    subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/mysql-statefulset.yaml"], check=True) # path to statefulset
-    time.sleep(10) # Wait for mysql stateful set and services before deploying the app.
-    subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app.yaml"], check=True)# path to node-deployment-template
-    subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app-ingress.yaml"], check=True)
-    subprocess.run(["kubectl", "apply", "-f", "./node-app-template-artifacts/node-app-hpa.yaml"], check=True)
-    subprocess.run(["kubectl", "wait", "--for=condition=available", "--timeout=120s", "deployment/mf-node-app"], check=True)
+    
+    # Deploy Helm chart
+    subprocess.run([
+        "helm", "upgrade", "--install", "node-app-chart", "./node-app-chart"
+    ], check=True)
+    
+    # Wait for deployment to be ready
+    subprocess.run(["kubectl", "rollout", "status", "deployment/mf-node-app", "--timeout=120s"], check=True)
+
+    # Optional: wait for ingress (if you're using it)
+    time.sleep(10)
+
+    print("✅ Helm deployment successful.")
     
     # Wait for the pods to be ready
     for _ in range(30):
@@ -36,7 +48,7 @@ def wait_for_service(url):
             requests.get(url + "/register", timeout=10)
             return
         except requests.ConnectionError:
-            time.sleep(10)
+            time.sleep(30)
     raise Exception("Service not ready")
 
 if __name__ == "__main__":

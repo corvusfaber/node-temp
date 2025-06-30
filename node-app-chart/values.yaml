@@ -1,0 +1,37 @@
+deployment:
+  applicationName: mf-node-app
+  replicaCount: 3
+  dockerImage: malcolmcfraser/mf-node-app-template:latest
+  imagePullPolicy: Always
+  containerPort: 3000
+  livenessProbePath: /health
+  readinessProbePath: /ready
+  mysqlWaitImage: busybox
+  mysqlHost: mysql-service
+  mysqlPort: 3306
+  secrets:
+    mysql:
+      name: mysql-secret
+      rootPasswordKey: mysql-root-password
+      userKey: mysql-user
+      passwordKey: mysql-password
+      databaseKey: mysql-database
+    jwt:
+      name: jwt-secret
+      key: JWT_SECRET
+
+statefulset:
+  name: mysql
+  image: mysql:5.7
+  replicas: 1
+  storageSize: 1Gi
+  secrets:
+    mysql:
+      name: mysql-secret
+      rootPasswordKey: mysql-root-password
+      userKey: mysql-user
+      passwordKey: mysql-password
+      databaseKey: mysql-database
+
+service:
+  port: 3000
