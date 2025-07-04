@@ -126,6 +126,13 @@ async function initializeDatabase (){
 
 initializeDatabase().catch(console.error);
 
+const authRateLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 50, // Limit to 50 attempts per window
+    message: 'Too many authentication attempts. Try again later.',
+    headers: true // Include rate limit info in the response headers
+});
+
 const authenticateToken = [authRateLimiter, (req, res, next) => {
     console.log('🔍 Checking Authorization Header:', req.headers.authorization);
     const authHeader = req.headers.authorization;
@@ -151,13 +158,6 @@ const rateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
     max: 20, // Limit to 20 attempts per window
     message: 'Too many attempts. Try again later.',
-    headers: true // Include rate limit info in the response headers
-});
-
-const authRateLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 50, // Limit to 50 attempts per window
-    message: 'Too many authentication attempts. Try again later.',
     headers: true // Include rate limit info in the response headers
 });
 
