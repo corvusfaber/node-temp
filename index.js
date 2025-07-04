@@ -126,7 +126,7 @@ async function initializeDatabase (){
 
 initializeDatabase().catch(console.error);
 
-function authenticateToken(req, res, next){
+const authenticateToken = [authRateLimiter, (req, res, next) => {
     console.log('🔍 Checking Authorization Header:', req.headers.authorization);
     const authHeader = req.headers.authorization;
 
@@ -144,15 +144,22 @@ function authenticateToken(req, res, next){
         }
         req.user = user; // Contains { id, username, isAdmin }
         next();
-    })
-}
+    });
+}];
 
 const rateLimiter = rateLimit({
-    windows: 5 * 60 * 1000, // 15 minutes
-    max: 20, // Limit to 5 attempts per window
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 20, // Limit to 20 attempts per window
     message: 'Too many attempts. Try again later.',
     headers: true // Include rate limit info in the response headers
-})
+});
+
+const authRateLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 50, // Limit to 50 attempts per window
+    message: 'Too many authentication attempts. Try again later.',
+    headers: true // Include rate limit info in the response headers
+});
 
 // Endpoints
 app.delete("/unregister", rateLimiter, authenticateToken, async(req, res) => {
