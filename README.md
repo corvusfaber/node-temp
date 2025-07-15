@@ -3,6 +3,8 @@
  - JWT Authentication – Login returns a token for authenticated routes
  
  - User Management – Register and unregister users securely
+
+ - Helm Chart – Update helm chart values file
  
  - MySQL Integration – Persistent data layer
  
@@ -37,6 +39,14 @@
 - POST	/login	Log in and receive JWT	
 
 - DELETE	/unregister	Delete own user account	
+
+- GET     /products  Get all products
+
+- POST    /products  Add product (admin-only)
+
+- GET     /cart  Get user's cart
+
+- POST    /products  Add product to cart
 
 # 🧪 Running Tests Locally
 
@@ -78,13 +88,35 @@ Install dependencies:
 ## ✅ Test Coverage
 - Tests included in test_api.py:
 
-     ✅ Register a new user
-     
-     🚫 Prevent duplicate usernames
-     
-     🔐 Login with valid/invalid credentials
-     
-     🧼 Unregister a user with valid JWT
+    👤 User Registration & Authentication
+          ✅ Register a new user
+          → test_register_success
+
+          🚫 Prevent duplicate usernames
+          → test_register_duplicate
+
+          🔐 Login with valid credentials
+          → test_login_success (as fixture)
+
+          🔐 Login with invalid password
+          → test_login_invalid_password
+
+          🔐 Login with non-existent user
+          → test_login_nonexistent_user
+
+     🛒 Product and Cart
+          🆕 Add a new product with valid token
+          → test_add_product_success
+
+          🆕 Get product list (with at least one product)
+          → test_get_products_success (as fixture)
+
+          🆕 Add item to cart and verify cart content
+          → test_get_cart_with_items
+
+     🧼 Account Cleanup
+          🧼 Unregister a user with valid JWT
+          → test_unregister_user
 
 The service URL and NodePort are automatically detected using kubectl and minikube.
 
@@ -130,11 +162,17 @@ Located at .github/workflows/ci-cd.yaml, this pipeline runs on every push or pul
 # ☸️ Kubernetes Deployment
 ## Your Kubernetes manifests include:
 
- - mysql-statefulset.yaml – MySQL StatefulSet with persistent storage
+ - statefulset.yaml – MySQL StatefulSet with persistent storage
  
  - node-app.yaml – Node.js API Deployment and NodePort Service
+
+ - hpa.yaml – Horizontal Pod Autoscaler
+
+ - ingress.yaml – Horizontal Pod Autoscaler
  
- - Secrets (e.g., DB credentials, JWT secret) are injected using:
+ - secrets (e.g., DB credentials, JWT secret) are injected using:
+     - Environment variables
+     - Github secrets
 
 
 # 🔐 Security Highlights
@@ -149,14 +187,10 @@ JWT tokens signed with a server secret
  - Isolated environments via CI/CD pipeline
 
 # 📌 TODOs
-
- - Add Helm chart support
  
  -  Add Postman collection and OpenAPI docs
  
  - Expand test data reusability and clean-up logic
- 
- - Add unit tests for Node.js logic
 
 # 👥 Author
 
